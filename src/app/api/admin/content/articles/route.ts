@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0);
 
-    return NextResponse.json({ success: true, id: result.lastInsertRowId });
+    return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {
     console.error('Create article post error:', err);
     return NextResponse.json({ error: 'Database error' }, { status: 500 });

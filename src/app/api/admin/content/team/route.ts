@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       VALUES (?, ?, ?, ?, ?)
     `).run(name, role, bio, image_url, display_order || 0);
 
-    return NextResponse.json({ success: true, id: result.lastInsertRowId });
+    return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {
     console.error('Create team member error:', err);
     return NextResponse.json({ error: 'Database error' }, { status: 500 });
