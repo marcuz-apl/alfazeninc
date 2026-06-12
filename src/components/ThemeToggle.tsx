@@ -27,9 +27,21 @@ export default function ThemeToggle() {
     return (
       <button 
         className="btn" 
-        style={{ padding: '8px 16px', borderRadius: '999px', background: 'var(--surface)', color: 'transparent', border: '1px solid var(--surface-border)' }}
+        style={{ 
+          width: '40px', 
+          height: '40px', 
+          borderRadius: '50%', 
+          background: 'var(--surface)', 
+          color: 'transparent', 
+          border: '1px solid var(--surface-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0
+        }}
+        aria-label="Toggle theme"
       >
-        🌙 Dark Mode
+        🌙
       </button>
     );
   }
@@ -38,9 +50,21 @@ export default function ThemeToggle() {
     <button 
       onClick={toggleTheme} 
       className="btn" 
-      style={{ padding: '8px 16px', borderRadius: '999px', background: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--surface-border)' }}
+      style={{ 
+        width: '40px', 
+        height: '40px', 
+        borderRadius: '50%', 
+        background: 'var(--surface)', 
+        color: 'var(--foreground)', 
+        border: '1px solid var(--surface-border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0
+      }}
+      aria-label="Toggle theme"
     >
-      {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+      {theme === 'light' ? '🌙' : '☀️'}
     </button>
   );
 }
