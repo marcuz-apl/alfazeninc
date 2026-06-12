@@ -224,6 +224,27 @@ export default function AdminPage() {
     }
   };
 
+  const handleSyncImages = async () => {
+    if (!confirm('This will download all external images to local public/images subfolders and update the database links. Proceed?')) return;
+    setSaveLoading(true);
+    try {
+      const response = await fetch('/api/admin/content/download-images', {
+        method: 'POST'
+      });
+      if (response.ok) {
+        showNotification('All images successfully downloaded and synchronized to local storage!');
+        fetchData();
+      } else {
+        const data = await response.json();
+        showNotification(`Sync failed: ${data.error || 'Unknown error'}`, true);
+      }
+    } catch (err) {
+      showNotification('Error running sync process.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
   // 1. Save Hero Settings
   const handleSaveHero = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,7 +256,9 @@ export default function AdminPage() {
         body: JSON.stringify({
           title: content.hero.title,
           content: content.hero.content,
-          show_contact_us: content.hero.show_contact_us
+          show_contact_us: content.hero.show_contact_us,
+          background_type: content.hero.background_type || 'image',
+          background_url: content.hero.background_url || ''
         })
       });
       if (response.ok) {
@@ -578,7 +601,11 @@ export default function AdminPage() {
           <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-dashboard-wrapper">
             {/* Dashboard Header */}
             <header className="admin-header">
-              <div className="brand-group-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <a 
+                href="/" 
+                className="brand-group-wrapper" 
+                style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none', color: 'inherit' }}
+              >
                 <img 
                   src="/logo.png" 
                   alt="Alfazen Logo" 
@@ -597,8 +624,16 @@ export default function AdminPage() {
                   <span className="brand-slogan" style={{ fontSize: '12px' }}>Stay Zen at First Place</span>
                   <p className="admin-dashboard-subtitle" style={{ marginTop: '4px' }}>Content Management System Dashboard</p>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
+              </a>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button 
+                  onClick={handleSyncImages} 
+                  disabled={saveLoading} 
+                  className="btn" 
+                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  📥 Sync Local Images
+                </button>
                 <button onClick={() => setIsChangePasswordModalOpen(true)} className="btn btn-secondary">
                   Change Password
                 </button>
@@ -734,6 +769,46 @@ export default function AdminPage() {
                       <label htmlFor="show_contact_us" className="label" style={{ margin: 0, cursor: 'pointer' }}>
                         Display "Contact Us" CTA Button
                       </label>
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '20px' }}>
+                      <label className="label">Background Media Type</label>
+                      <div style={{ display: 'flex', gap: '20px', marginTop: '8px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input 
+                            type="radio" 
+                            name="background_type"
+                            value="image"
+                            checked={content.hero.background_type === 'image' || !content.hero.background_type}
+                            onChange={(e) => setContent({ ...content, hero: { ...content.hero, background_type: 'image' } })}
+                          />
+                          Static Image
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input 
+                            type="radio" 
+                            name="background_type"
+                            value="video"
+                            checked={content.hero.background_type === 'video'}
+                            onChange={(e) => setContent({ ...content, hero: { ...content.hero, background_type: 'video' } })}
+                          />
+                          Short Video
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: '16px' }}>
+                      <label className="label">Background Media URL</label>
+                      <input 
+                        type="text" 
+                        className="input" 
+                        placeholder={content.hero.background_type === 'video' ? "e.g., /images/hero/hero_bg.mp4" : "e.g., /images/hero/hero_bg.jpg"}
+                        value={content.hero.background_url || ''} 
+                        onChange={(e) => setContent({ ...content, hero: { ...content.hero, background_url: e.target.value } })}
+                      />
+                      <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
+                        Leave empty to use defaults, or insert external URLs / local relative paths like <code>/images/hero/...</code>.
+                      </small>
                     </div>
                     <button type="submit" disabled={saveLoading} className="btn" style={{ marginTop: '24px' }}>
                       {saveLoading ? 'Saving Settings...' : 'Save Settings'}
@@ -1022,7 +1097,17 @@ export default function AdminPage() {
                         <button 
                           onClick={() => {
                             setEditorMode('add');
-                            setEditingCard({ name: '', role: '', bio: '', image_url: '', display_order: content.team.length + 1 });
+                            setEditingCard({ 
+                              name: '', 
+                              role: '', 
+                              bio: '', 
+                              image_url: '', 
+                              display_order: content.team.length + 1,
+                              image_zoom: 1.0,
+                              image_x: 0,
+                              image_y: 0,
+                              image_blur: 0
+                            });
                           }}
                           className="btn"
                         >
@@ -1108,6 +1193,98 @@ export default function AdminPage() {
                             onChange={(e) => setEditingCard({ ...editingCard, image_url: e.target.value })}
                             required
                           />
+                        </div>
+
+                        {/* Team Image Position/Zoom/Blur Controls & Live circular preview */}
+                        <div style={{ border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px', marginTop: '20px', backgroundColor: 'var(--surface)' }}>
+                          <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', color: 'var(--primary)' }}>Advanced Image Alignment</h3>
+                          
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px', gap: '8px' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Circle Fit Preview</span>
+                            <div 
+                              style={{ 
+                                width: '150px', 
+                                height: '150px', 
+                                borderRadius: '50%', 
+                                overflow: 'hidden', 
+                                border: '3px solid var(--primary)', 
+                                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+                                backgroundColor: 'var(--background)'
+                              }}
+                            >
+                              {editingCard.image_url ? (
+                                <img 
+                                  src={editingCard.image_url} 
+                                  alt="Live crop preview" 
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    transform: `scale(${editingCard.image_zoom || 1.0}) translate(${editingCard.image_x || 0}px, ${editingCard.image_y || 0}px)`,
+                                    filter: `blur(${editingCard.image_blur || 0}px)`,
+                                    transformOrigin: 'center center',
+                                    transition: 'transform 0.1s ease, filter 0.1s ease'
+                                  }} 
+                                />
+                              ) : (
+                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+                                  No Image URL
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label className="label" style={{ fontSize: '13px' }}>Zoom Scale ({editingCard.image_zoom || 1.0}x)</label>
+                            <input 
+                              type="range" 
+                              min="1.0" 
+                              max="3.0" 
+                              step="0.05"
+                              value={editingCard.image_zoom || 1.0}
+                              onChange={(e) => setEditingCard({ ...editingCard, image_zoom: parseFloat(e.target.value) })}
+                              style={{ width: '100%', cursor: 'pointer' }}
+                            />
+                          </div>
+
+                          <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label className="label" style={{ fontSize: '13px' }}>Horizontal Pan ({editingCard.image_x || 0}px)</label>
+                            <input 
+                              type="range" 
+                              min="-100" 
+                              max="100" 
+                              step="1"
+                              value={editingCard.image_x || 0}
+                              onChange={(e) => setEditingCard({ ...editingCard, image_x: parseInt(e.target.value) || 0 })}
+                              style={{ width: '100%', cursor: 'pointer' }}
+                            />
+                          </div>
+
+                          <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label className="label" style={{ fontSize: '13px' }}>Vertical Pan ({editingCard.image_y || 0}px)</label>
+                            <input 
+                              type="range" 
+                              min="-100" 
+                              max="100" 
+                              step="1"
+                              value={editingCard.image_y || 0}
+                              onChange={(e) => setEditingCard({ ...editingCard, image_y: parseInt(e.target.value) || 0 })}
+                              style={{ width: '100%', cursor: 'pointer' }}
+                            />
+                          </div>
+
+                          <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label className="label" style={{ fontSize: '13px' }}>Blur Strength ({editingCard.image_blur || 0}px)</label>
+                            <input 
+                              type="range" 
+                              min="0" 
+                              max="20" 
+                              step="0.5"
+                              value={editingCard.image_blur || 0}
+                              onChange={(e) => setEditingCard({ ...editingCard, image_blur: parseFloat(e.target.value) || 0 })}
+                              style={{ width: '100%', cursor: 'pointer' }}
+                            />
+                          </div>
                         </div>
                         <div className="form-group" style={{ marginTop: '16px' }}>
                           <label className="label">Display Order Index</label>

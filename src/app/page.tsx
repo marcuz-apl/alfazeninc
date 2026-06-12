@@ -15,7 +15,9 @@ export default function Home() {
   const [hero, setHero] = useState({
     title: "Global AI Solutions for Oil & Gas",
     content: "With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry. Based in Calgary, AB, we deliver innovative solutions that optimize operations and drive industry progress. Partner with us to harness the power of AI for your energy needs.",
-    show_contact_us: 1
+    show_contact_us: 1,
+    background_type: "image",
+    background_url: ""
   });
   
   const [servicesTitle, setServicesTitle] = useState("Alfazen Inc. Data Science Services for Oil & Gas");
@@ -115,7 +117,15 @@ export default function Home() {
       {/* Navigation */}
       <header className="header">
         <div className="header-container">
-          <div className="brand-group-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <a 
+            href="#home"
+            className="brand-group-wrapper" 
+            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
             <img 
               src="/logo.png" 
               alt="Alfazen Logo" 
@@ -133,7 +143,7 @@ export default function Home() {
               <div className="brand-title">Alfazen Inc.</div>
               <div className="brand-slogan">Stay Zen at First Place</div>
             </div>
-          </div>
+          </a>
           <nav className="nav-links">
             {navLinks.map((link) => (
               <a key={link} href={`#${link.toLowerCase().replace(' ', '-')}`} className="nav-item">
@@ -192,7 +202,22 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero-section" id="home">
         <div className="hero-bg-wrapper">
-          <div className="hero-bg-image" />
+          {hero.background_type === 'video' ? (
+            <video
+              src={hero.background_url || '/images/hero/hero_bg.mp4'}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="hero-bg-image"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+            />
+          ) : (
+            <div 
+              className="hero-bg-image" 
+              style={hero.background_url ? { backgroundImage: `url(${hero.background_url})` } : undefined}
+            />
+          )}
           <div className="hero-overlay" />
         </div>
         
@@ -312,7 +337,17 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <div className="team-image-wrapper">
-                  <img src={member.image_url} alt={member.name} className="team-image" />
+                  <img 
+                    src={member.image_url} 
+                    alt={member.name} 
+                    className="team-image" 
+                    style={{
+                      transform: `scale(${member.image_zoom || 1}) translate(${member.image_x || 0}px, ${member.image_y || 0}px)`,
+                      filter: `blur(${member.image_blur || 0}px)`,
+                      transformOrigin: 'center center',
+                      transition: 'transform 0.2s ease, filter 0.2s ease'
+                    }}
+                  />
                 </div>
                 <h3 className="card-title" style={{ fontSize: '24px', textAlign: 'center' }}>{member.name}</h3>
                 <h4 className="team-role">{member.role}</h4>

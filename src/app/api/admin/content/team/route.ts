@@ -23,16 +23,24 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const { id, name, role, bio, image_url, display_order } = await request.json();
+    const { id, name, role, bio, image_url, display_order, image_zoom, image_x, image_y, image_blur } = await request.json();
     if (!id || !name || !role || !bio || !image_url) {
       return NextResponse.json({ error: 'Missing required card fields' }, { status: 400 });
     }
 
     db.prepare(`
       UPDATE team_cards 
-      SET name = ?, role = ?, bio = ?, image_url = ?, display_order = ?
+      SET name = ?, role = ?, bio = ?, image_url = ?, display_order = ?,
+          image_zoom = ?, image_x = ?, image_y = ?, image_blur = ?
       WHERE id = ?
-    `).run(name, role, bio, image_url, display_order || 0, id);
+    `).run(
+      name, role, bio, image_url, display_order || 0,
+      image_zoom !== undefined ? parseFloat(image_zoom) : 1.0,
+      image_x !== undefined ? parseFloat(image_x) : 0.0,
+      image_y !== undefined ? parseFloat(image_y) : 0.0,
+      image_blur !== undefined ? parseFloat(image_blur) : 0.0,
+      id
+    );
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -51,15 +59,21 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name, role, bio, image_url, display_order } = await request.json();
+    const { name, role, bio, image_url, display_order, image_zoom, image_x, image_y, image_blur } = await request.json();
     if (!name || !role || !bio || !image_url) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const result = db.prepare(`
-      INSERT INTO team_cards (name, role, bio, image_url, display_order)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(name, role, bio, image_url, display_order || 0);
+      INSERT INTO team_cards (name, role, bio, image_url, display_order, image_zoom, image_x, image_y, image_blur)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      name, role, bio, image_url, display_order || 0,
+      image_zoom !== undefined ? parseFloat(image_zoom) : 1.0,
+      image_x !== undefined ? parseFloat(image_x) : 0.0,
+      image_y !== undefined ? parseFloat(image_y) : 0.0,
+      image_blur !== undefined ? parseFloat(image_blur) : 0.0
+    );
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {

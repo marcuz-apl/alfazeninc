@@ -103,10 +103,30 @@ db.exec(`
   );
 `);
 
+// Safe Migrations for existing databases
+try {
+  db.exec("ALTER TABLE hero_settings ADD COLUMN background_type TEXT DEFAULT 'image'");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE hero_settings ADD COLUMN background_url TEXT DEFAULT '/images/hero/hero_bg.jpg'");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE team_cards ADD COLUMN image_zoom REAL DEFAULT 1.0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE team_cards ADD COLUMN image_x REAL DEFAULT 0.0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE team_cards ADD COLUMN image_y REAL DEFAULT 0.0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE team_cards ADD COLUMN image_blur REAL DEFAULT 0.0");
+} catch (e) {}
+
 // Seed default data if empty
 const hasHero = db.prepare("SELECT count(*) as count FROM hero_settings").get() as { count: number };
 if (hasHero.count === 0) {
-  db.prepare("INSERT INTO hero_settings (id, title, content, show_contact_us) VALUES (1, ?, ?, 1)")
+  db.prepare("INSERT INTO hero_settings (id, title, content, show_contact_us, background_type, background_url) VALUES (1, ?, ?, 1, 'image', '/images/hero/hero_bg.jpg')")
     .run(
       "Global AI Solutions for Oil & Gas",
       "With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry. Based in Calgary, AB, we deliver innovative solutions that optimize operations and drive industry progress. Partner with us to harness the power of AI for your energy needs."
