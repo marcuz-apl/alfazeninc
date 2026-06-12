@@ -9,13 +9,32 @@ import GalleryCarousel from '@/components/GalleryCarousel';
 export default function Home() {
   const navLinks = ['Services', 'Gallery', 'Team', 'Article', 'Contact Us'];
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <main>
       {/* Navigation */}
       <header className="header">
         <div className="header-container">
-          <div className="brand-title">Alfazen Inc.</div>
+          <div className="brand-group-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              src="/logo.png" 
+              alt="Alfazen Logo" 
+              style={{ 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%', 
+                objectFit: 'cover', 
+                objectPosition: 'center',
+                border: '1px solid var(--surface-border)',
+                backgroundColor: '#ffffff'
+              }} 
+            />
+            <div className="brand-group">
+              <div className="brand-title">Alfazen Inc.</div>
+              <div className="brand-slogan">Stay Zen at First Place</div>
+            </div>
+          </div>
           <nav className="nav-links">
             {navLinks.map((link) => (
               <a key={link} href={`#${link.toLowerCase().replace(' ', '-')}`} className="nav-item">
@@ -23,8 +42,52 @@ export default function Home() {
               </a>
             ))}
           </nav>
-          <ThemeToggle />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <ThemeToggle />
+            <button 
+              className={`mobile-menu-btn ${isMobileMenuOpen ? 'open' : ''}`}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Nav Drawer */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              <motion.div 
+                className="mobile-nav-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              <motion.nav 
+                className="mobile-nav-menu"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'tween', duration: 0.3 }}
+              >
+                {navLinks.map((link) => (
+                  <a 
+                    key={link} 
+                    href={`#${link.toLowerCase().replace(' ', '-')}`} 
+                    className="mobile-nav-item"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link}
+                  </a>
+                ))}
+              </motion.nav>
+            </>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Hero Section */}

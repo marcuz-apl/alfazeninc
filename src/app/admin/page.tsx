@@ -351,9 +351,25 @@ export default function AdminPage() {
           >
             {/* Dashboard Header */}
             <header className="admin-header">
-              <div>
-                <h1 className="admin-dashboard-title">Alfazen Inc.</h1>
-                <p className="admin-dashboard-subtitle">Guest Message Management Console</p>
+              <div className="brand-group-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <img 
+                  src="/logo.png" 
+                  alt="Alfazen Logo" 
+                  style={{ 
+                    width: '46px', 
+                    height: '46px', 
+                    borderRadius: '50%', 
+                    objectFit: 'cover', 
+                    objectPosition: 'center',
+                    border: '1px solid var(--surface-border)',
+                    backgroundColor: '#ffffff'
+                  }} 
+                />
+                <div className="brand-group">
+                  <h1 className="admin-dashboard-title">Alfazen Inc.</h1>
+                  <span className="brand-slogan" style={{ fontSize: '12px' }}>Stay Zen at First Place</span>
+                  <p className="admin-dashboard-subtitle" style={{ marginTop: '4px' }}>Guest Message Management Console</p>
+                </div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button onClick={() => setIsChangePasswordModalOpen(true)} className="btn btn-secondary">
