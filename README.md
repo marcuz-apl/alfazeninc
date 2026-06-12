@@ -1,40 +1,131 @@
-# Alfazen Inc. Website Clone
+# Alfazen Inc. Website & CMS
 
-A high-performance, professional Next.js landing page for Alfazen Inc. featuring sleek animations, a dark/light mode toggle, and a fully functional local SQLite database for the Contact form.
+A high-performance, professional Next.js landing page for **Alfazen Inc.** featuring sleek animations, dark/light mode, a fully functional SQLite CMS, and a built-in Admin Panel for managing every section of the website.
 
 ## Tech Stack
-- **Framework:** Next.js (App Router)
-- **Styling:** Vanilla CSS Modules with CSS Variables (No Tailwind)
-- **Animations:** Framer Motion
-- **Database:** SQLite3 (`better-sqlite3`)
+
+| Layer | Technology |
+|---|---|
+| **Framework** | Next.js (App Router) |
+| **Styling** | Vanilla CSS with CSS Variables — no Tailwind |
+| **Animations** | Framer Motion |
+| **Database** | SQLite (`better-sqlite3`) — local file `afzinc.db` |
+| **Auth** | Session cookie + password hashing (admin panel) |
 
 ## Setup Instructions
 
 1. **Install Dependencies**
-   Make sure you have Node.js installed, then run:
    ```bash
    npm install
    ```
 
 2. **Run the Development Server**
-   Start the local development server:
    ```bash
    npm run dev
    ```
    Open [http://localhost:4000](http://localhost:4000) to view the website.
 
-3. **Database Management**
-   The application automatically creates a local database file named `afzinc.db` in the root directory upon the first form submission or API initialization.
-   You can query it using standard SQLite tools:
+3. **Database**
+   The app auto-creates `afzinc.db` on first launch. You can inspect it with any SQLite client:
    ```bash
-   sqlite3 afzinc.db
-   sqlite> SELECT * FROM messages;
+   sqlite3 afzinc.db ".tables"
    ```
 
 ## Key Features
-- **Dark/Light Mode:** Toggle easily in the top right header. User preference is saved to `localStorage`.
-- **Framer Motion Animations:** Smooth fade-ins and scroll-based reveal animations.
-- **Contact API:** The `/api/contact` route safely handles user messages and logs them into the `afzinc.db` SQLite database.
+
+### Public Website
+- **Dark / Light Mode** — toggle in the header; preference saved to `localStorage`.
+- **Hero Section** — configurable title, paragraph, background image or video, and optional "Contact Us" CTA.
+- **Services Section** — dynamic card grid with images, managed from the CMS.
+- **Gallery Section** — image carousel with configurable sliding effect (slide / fade) and autoplay speed.
+- **Team Section** — circular avatar cards with advanced image cropping (zoom, pan, blur).
+- **Articles Section** — blog-style posts with author and date fields.
+- **Contact Form** — submissions stored in the `messages` table via `/api/contact`.
+- **Framer Motion Animations** — smooth fade-ins and scroll-based reveals throughout.
+
+### Admin Panel (`/admin`)
+
+A full-featured CMS dashboard for managing the entire website. Protected by session-based authentication with enforced password change on first login.
+
+| Tab | Capabilities |
+|---|---|
+| **Inquiries** | View and delete contact form submissions |
+| **Hero** | Edit title, paragraph, toggle CTA, set background image/video |
+| **Services** | Edit section title; add, edit, reorder, delete service cards |
+| **Gallery** | Configure sliding effect & speed; add, edit, delete slides |
+| **Team** | Add/delete team cards; advanced image adjustment (zoom, pan, blur) |
+| **Articles** | Full article CRUD with author, date, and image fields |
+| **Media** | Unified media library — upload, drag-and-drop, download from URL, delete assets, sync external images to local storage |
+
+### Media Management
+
+The **Media** tab provides a centralized asset manager across all website sections:
+
+- **Browse by Section** — filter view by Hero, Services, Gallery, Team, or Articles.
+- **Drag & Drop Upload** — with real-time progress bar.
+- **Download from URL** — paste an external URL to download and save locally.
+- **Sync External Images** — one-click bulk operation that scans the database for external URLs, downloads them to local `/public/images/<section>/` folders, and updates all DB references.
+- **Safe Delete** — prevents deletion of assets currently in use on the website.
+- **File Preview** — click any thumbnail for a full-screen lightbox with video controls.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx              # Public landing page
+│   ├── layout.tsx            # Root layout with metadata
+│   ├── globals.css           # Design system (CSS variables, components)
+│   ├── admin/
+│   │   ├── page.tsx          # Admin dashboard (all tabs except Media)
+│   │   └── components/
+│   │       └── MediaTab.tsx  # Media management tab component
+│   └── api/
+│       ├── contact/          # Public contact form endpoint
+│       ├── content/          # Public content read endpoint
+│       └── admin/
+│           ├── login/        # Authentication
+│           ├── logout/       # Session teardown
+│           ├── change-password/
+│           ├── messages/     # Inquiry CRUD
+│           ├── content/      # CMS write endpoints
+│           │   ├── hero/
+│           │   ├── services/
+│           │   ├── gallery/
+│           │   ├── team/
+│           │   ├── articles/
+│           │   └── download-images/  # Bulk external→local sync
+│           └── media/
+│               ├── route.ts  # List & delete media assets
+│               ├── upload/   # File upload endpoint
+│               └── download/ # Download from URL endpoint
+├── lib/
+│   └── db.ts                 # SQLite connection & schema migrations
+public/
+├── images/
+│   ├── hero/                 # Hero background assets
+│   ├── services/             # Service card images
+│   ├── gallery/              # Gallery slide images
+│   ├── team/                 # Team avatar images
+│   └── articles/             # Article cover images
+scripts/
+└── download-images.js        # CLI script for initial asset migration
+```
+
+## Database Tables
+
+| Table | Purpose |
+|---|---|
+| `messages` | Contact form submissions |
+| `admin_settings` | Admin password hash, password-changed flag |
+| `hero_settings` | Hero section config (title, content, background, CTA toggle) |
+| `services_settings` | Services section title |
+| `services_cards` | Individual service offering cards |
+| `gallery_settings` | Carousel effect and autoplay speed |
+| `gallery_items` | Individual gallery slides |
+| `team_cards` | Team member cards (with image transform data) |
+| `article_posts` | Blog articles with author and date |
 
 ## Architecture Guidelines
-Please refer to [AGENTS.md](./AGENTS.md) for more details on contributing and AI-agent guidelines.
+
+See [AGENTS.md](./AGENTS.md) for contribution rules and AI-agent guidelines.
