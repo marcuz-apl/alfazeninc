@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MediaTab from './components/MediaTab';
 
 interface Message {
   id: number;
@@ -34,7 +35,7 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('inquiries');
+  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles' | 'media'>('inquiries');
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -626,14 +627,6 @@ export default function AdminPage() {
                 </div>
               </a>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <button 
-                  onClick={handleSyncImages} 
-                  disabled={saveLoading} 
-                  className="btn" 
-                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  📥 Sync Local Images
-                </button>
                 <button onClick={() => setIsChangePasswordModalOpen(true)} className="btn btn-secondary">
                   Change Password
                 </button>
@@ -645,7 +638,7 @@ export default function AdminPage() {
 
             {/* Dashboard Tabs Navigation */}
             <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
-              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles'] as const).map((tab) => (
+              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles', 'media'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -1523,6 +1516,9 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+{activeTab === 'media' && (
+  <MediaTab onSyncImages={handleSyncImages} syncLoading={saveLoading} />
+)}
             </div>
           </motion.div>
         )}
