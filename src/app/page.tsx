@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '@/components/ThemeToggle';
 import ContactForm from '@/components/ContactForm';
@@ -10,6 +10,105 @@ export default function Home() {
   const navLinks = ['Services', 'Gallery', 'Team', 'Article', 'Contact Us'];
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Dynamic Content States with Defaults
+  const [hero, setHero] = useState({
+    title: "Global AI Solutions for Oil & Gas",
+    content: "With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry. Based in Calgary, AB, we deliver innovative solutions that optimize operations and drive industry progress. Partner with us to harness the power of AI for your energy needs.",
+    show_contact_us: 1
+  });
+  
+  const [servicesTitle, setServicesTitle] = useState("Alfazen Inc. Data Science Services for Oil & Gas");
+  const [services, setServices] = useState<any[]>([
+    {
+      title: 'AI-Driven Reservoir Analysis',
+      description: 'Utilize advanced AI models to optimize reservoir characterization and enhance extraction efficiency, minimizing operational risks.',
+      image_url: 'https://images.unsplash.com/photo-1691505748956-2d02b6603e84?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw0fHxvaWwlMjByZXNlcnZvaXJ8ZW58MHwwfHx8MTc2MzQwMTc2N3ww&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
+      image_alt: 'a large field with a water tower in the middle of it'
+    },
+    {
+      title: 'Predictive Maintenance Solutions',
+      description: 'Implement machine learning algorithms to predict equipment failures and schedule proactive maintenance, reducing downtime.',
+      image_url: 'https://images.unsplash.com/photo-1701383838063-ceb050928f24?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxvaWwlMjByaWclMjBtYWludGVuYW5jZXxlbnwwfDB8fHwxNzYzMzE5MDMyfDA&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
+      image_alt: 'an old rusted out truck with a number on it'
+    },
+    {
+      title: 'Custom AI Solutions Development',
+      description: 'Design and implement tailored AI applications addressing specific challenges faced by oil and gas companies worldwide.',
+      image_url: 'https://images.unsplash.com/photo-1721314787850-5745fdfb06b4?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlfGVufDB8MHx8fDE3NjMzNzMwNzh8MA&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
+      image_alt: 'AI chip background'
+    }
+  ]);
+  
+  const [gallerySettings, setGallerySettings] = useState({
+    sliding_effect: "slide",
+    autoplay_speed: 5000
+  });
+  const [galleryItems, setGalleryItems] = useState<any[]>([
+    {
+      image_url: 'https://images.unsplash.com/photo-1695060601967-7fb135446f67?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxMXx8b2lsJTIwYW5kJTIwZ2FzJTIwaW5kdXN0cnklMjBkYXRhJTIwc2NpZW5jZSUyMEFJfGVufDB8MHx8fDE3NjM0MDE3NjF8MA&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'A group of oil pumps sitting next to each other'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1729201754182-536252085563?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw2fHxvaWwlMjBhbmYlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'A black and white photo of an oil pump'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw1fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'Oil field operations during sunset'
+    }
+  ]);
+  
+  const [team, setTeam] = useState<any[]>([
+    {
+      name: 'Marcus Zou',
+      role: 'Commercialisation Officer',
+      bio: 'Marcus Zou, Senior Data Specialist and Commercialization Officer, Microsoft certified Cloud Engineer, brings 20 years of expertise in AI and machine learning applied to geoscience, reservoir modeling and predictive maintenance in the oil and gas sector.',
+      image_url: 'https://cdn.soloist.ai/9a6cdcdf-8b81-4230-a673-75d77e3a7a88/6579892a-1466-44d5-a9b8-e34587dd8543_1040x1040.webp'
+    },
+    {
+      name: 'Edward Zou',
+      role: 'Business Portfolio Manager',
+      bio: 'Edward Zou, Software Architect and Business Portfolio Manager, Microsoft Certified Cloud Developer, specializes in orchestrating software architecture, building scalable data solutions and integrating complex data for advanced analytics and operational optimization.',
+      image_url: 'https://cdn.soloist.ai/9a6cdcdf-8b81-4230-a673-75d77e3a7a88/c9974234-a8b3-4d4d-ad52-138e1f64cd04_1040x1040.webp'
+    }
+  ]);
+  
+  const [articles, setArticles] = useState<any[]>([
+    {
+      title: "Alfazen Inc.: Pioneering Data Science Solutions in the Oil and Gas Industry",
+      author: "Marcus Zou",
+      published_date: "2026-06-12",
+      image_url: "https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxEYXRhJTIwU2NpZW5jZSUyQyUyME9pbCUyMGFuZCUyMEdhcyUyMEluZHVzdHJ5JTJDJTIwQXJ0aWZpY2lhbCUyMEludGVsbGlnZW5jZSUyQyUyMENhbGdhcnl8ZW58MHwwfHx8MTc2MzQwMTc2OHww&ixlib=rb-4.1.0&w=1000&q=80&auto=format&fit=crop",
+      image_alt: "a sunset in the background with oil industry elements",
+      paragraphs: [
+        {
+          heading: "Expertise Rooted in Experience and Innovation",
+          text: "Alfazen Inc., headquartered in Calgary, AB, brings over 20 years of unparalleled expertise in data science tailored specifically for the oil and gas sector. With a presence across multiple continents, our team combines deep industry knowledge with cutting-edge AI technologies to address the complex challenges faced by energy companies today."
+        },
+        {
+          heading: "Comprehensive Data Science Services",
+          text: "We offer a suite of data science services designed to optimize exploration, production, and asset management processes. Our solutions encompass predictive analytics, machine learning models, and advanced data integration techniques."
+        }
+      ]
+    }
+  ]);
+
+  // Load Content from API
+  useEffect(() => {
+    fetch('/api/content')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.hero) setHero(data.hero);
+        if (data.servicesSettings?.title) setServicesTitle(data.servicesSettings.title);
+        if (data.services && data.services.length > 0) setServices(data.services);
+        if (data.gallerySettings) setGallerySettings(data.gallerySettings);
+        if (data.gallery && data.gallery.length > 0) setGalleryItems(data.gallery);
+        if (data.team && data.team.length > 0) setTeam(data.team);
+        if (data.articles && data.articles.length > 0) setArticles(data.articles);
+      })
+      .catch((err) => console.error('Error loading landing page content:', err));
+  }, []);
 
   return (
     <main>
@@ -103,15 +202,16 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="container hero-content"
         >
-          <h1 className="hero-title">Global AI Solutions for Oil & Gas</h1>
-          <p className="hero-subtitle">
-            With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry. Based in Calgary, AB, we deliver innovative solutions that optimize operations and drive industry progress. Partner with us to harness the power of AI for your energy needs.
-          </p>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <a href="#contact-us" className="btn btn-lg">
-              Contact Us
-            </a>
-          </motion.div>
+          <h1 className="hero-title">{hero.title}</h1>
+          <p className="hero-subtitle">{hero.content}</p>
+          
+          {hero.show_contact_us === 1 && (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <a href="#contact-us" className="btn btn-lg">
+                Contact Us
+              </a>
+            </motion.div>
+          )}
         </motion.div>
       </section>
 
@@ -125,31 +225,12 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Alfazen Inc. Data Science Services for Oil & Gas
+            {servicesTitle}
           </motion.h2>
           <div className="grid">
-            {[
-              {
-                title: 'AI-Driven Reservoir Analysis',
-                desc: 'Utilize advanced AI models to optimize reservoir characterization and enhance extraction efficiency, minimizing operational risks.',
-                img: 'https://images.unsplash.com/photo-1691505748956-2d02b6603e84?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw0fHxvaWwlMjByZXNlcnZvaXJ8ZW58MHwwfHx8MTc2MzQwMTc2N3ww&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
-                alt: 'a large field with a water tower in the middle of it'
-              },
-              {
-                title: 'Predictive Maintenance Solutions',
-                desc: 'Implement machine learning algorithms to predict equipment failures and schedule proactive maintenance, reducing downtime.',
-                img: 'https://images.unsplash.com/photo-1701383838063-ceb050928f24?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxvaWwlMjByaWclMjBtYWludGVuYW5jZXxlbnwwfDB8fHwxNzYzMzE5MDMyfDA&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
-                alt: 'an old rusted out truck with a number on it'
-              },
-              {
-                title: 'Custom AI Solutions Development',
-                desc: 'Design and implement tailored AI applications addressing specific challenges faced by oil and gas companies worldwide.',
-                img: 'https://images.unsplash.com/photo-1721314787850-5745fdfb06b4?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlfGVufDB8MHx8fDE3NjMzNzMwNzh8MA&ixlib=rb-4.1.0&w=600&q=80&auto=format&fit=crop',
-                alt: 'AI chip background'
-              }
-            ].map((feature, i) => (
+            {services.map((feature, i) => (
               <motion.div 
-                key={i}
+                key={feature.id || i}
                 className="card"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -157,10 +238,10 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <div className="card-image-wrapper">
-                  <img src={feature.img} alt={feature.alt} className="card-image" />
+                  <img src={feature.image_url} alt={feature.image_alt} className="card-image" />
                 </div>
                 <h3 className="card-title">{feature.title}</h3>
-                <p className="card-desc">{feature.desc}</p>
+                <p className="card-desc">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -179,7 +260,11 @@ export default function Home() {
           >
             Gallery
           </motion.h2>
-          <GalleryCarousel />
+          <GalleryCarousel 
+            images={galleryItems.map(item => ({ src: item.image_url, alt: item.image_alt }))}
+            slidingEffect={gallerySettings.sliding_effect as 'slide' | 'fade'}
+            autoplaySpeed={gallerySettings.autoplay_speed}
+          />
         </div>
       </section>
 
@@ -217,22 +302,9 @@ export default function Home() {
             Team
           </motion.h2>
           <div className="grid">
-            {[
-              {
-                name: 'Marcus Zou',
-                role: 'Commercialisation Officer',
-                bio: 'Marcus Zou, Senior Data Specialist and Commercialization Officer, Microsoft certified Cloud Engineer, brings 20 years of expertise in AI and machine learning applied to geoscience, reservoir modeling and predictive maintenance in the oil and gas sector.',
-                img: 'https://cdn.soloist.ai/9a6cdcdf-8b81-4230-a673-75d77e3a7a88/6579892a-1466-44d5-a9b8-e34587dd8543_1040x1040.webp'
-              },
-              {
-                name: 'Edward Zou',
-                role: 'Business Portfolio Manager',
-                bio: 'Edward Zou, Software Architect and Business Portfolio Manager, Microsoft Certified Cloud Developer, specializes in orchestrating software architecture, building scalable data solutions and integrating complex data for advanced analytics and operational optimization.',
-                img: 'https://cdn.soloist.ai/9a6cdcdf-8b81-4230-a673-75d77e3a7a88/c9974234-a8b3-4d4d-ad52-138e1f64cd04_1040x1040.webp'
-              }
-            ].map((member, i) => (
+            {team.map((member, i) => (
               <motion.div 
-                key={i}
+                key={member.id || i}
                 className="card team-card"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -240,7 +312,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <div className="team-image-wrapper">
-                  <img src={member.img} alt={member.name} className="team-image" />
+                  <img src={member.image_url} alt={member.name} className="team-image" />
                 </div>
                 <h3 className="card-title" style={{ fontSize: '24px', textAlign: 'center' }}>{member.name}</h3>
                 <h4 className="team-role">{member.role}</h4>
@@ -253,45 +325,57 @@ export default function Home() {
 
       {/* Article Section */}
       <section id="article" className="section article-section" style={{ backgroundColor: 'var(--surface)' }}>
-        <div className="container article-grid">
-          <motion.div 
-            className="article-image-container"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw3fHxEYXRhJTIwU2NpZW5jZSUyQyUyME9pbCUyMGFuZCUyMEdhcyUyMEluZHVzdHJ5JTJDJTIwQXJ0aWZpY2lhbCUyMEludGVsbGlnZW5jZSUyQyUyMENhbGdhcnl8ZW58MHwwfHx8MTc2MzQwMTc2OHww&ixlib=rb-4.1.0&w=1000&q=80&auto=format&fit=crop" 
-              alt="a sunset in the background with oil industry elements" 
-              className="article-image"
-            />
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="article-content"
-          >
-            <h2 className="article-title">Alfazen Inc.: Pioneering Data Science Solutions in the Oil and Gas Industry</h2>
-            
-            <h3 className="article-heading">Expertise Rooted in Experience and Innovation</h3>
-            <p className="article-text">
-              Alfazen Inc., headquartered in Calgary, AB, brings over 20 years of unparalleled expertise in data science tailored specifically for the oil and gas sector. With a presence across multiple continents, our team combines deep industry knowledge with cutting-edge AI technologies to address the complex challenges faced by energy companies today. Our seasoned professionals understand the nuances of the oil and gas industry, enabling us to deliver insights that drive operational efficiency and strategic decision-making.
-            </p>
-
-            <h3 className="article-heading">Comprehensive Data Science Services</h3>
-            <p className="article-text">
-              We offer a suite of data science services designed to optimize exploration, production, and asset management processes. Our solutions encompass predictive analytics, machine learning models, and advanced data integration techniques that transform vast datasets into actionable intelligence. Whether it’s enhancing reservoir characterization, improving drilling accuracy, or optimizing supply chain logistics, Alfazen Inc. provides customized strategies that align with our clients’ unique needs and goals.
-            </p>
-
-            <h3 className="article-heading">Empowering the Industry with AI-Driven Solutions</h3>
-            <p className="article-text">
-              At Alfazen Inc., we are committed to harnessing the power of artificial intelligence to revolutionize the oil and gas industry. Our AI capabilities enable companies to anticipate market fluctuations, reduce operational risks, and increase sustainability through smarter resource management. By partnering with us, clients gain a competitive edge through innovative technology that not only addresses current challenges but also anticipates future opportunities in an ever-evolving energy landscape.
-            </p>
-          </motion.div>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '80px' }}>
+          {articles.map((post, index) => (
+            <div 
+              key={post.id || index}
+              className="article-grid"
+              style={{
+                display: 'grid',
+                gap: '32px',
+                alignItems: 'center'
+              }}
+            >
+              {/* Image Column */}
+              <motion.div 
+                className="article-image-container"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                style={{ order: index % 2 === 1 ? 2 : 1 }}
+              >
+                <img 
+                  src={post.image_url} 
+                  alt={post.image_alt} 
+                  className="article-image"
+                />
+              </motion.div>
+              
+              {/* Content Column */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="article-content"
+                style={{ order: index % 2 === 1 ? 1 : 2 }}
+              >
+                <h2 className="article-title">{post.title}</h2>
+                {post.author && (
+                  <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px', fontStyle: 'italic', marginTop: '-12px' }}>
+                    By {post.author} {post.published_date && `| ${post.published_date}`}
+                  </p>
+                )}
+                {post.paragraphs && post.paragraphs.map((para: any, i: number) => (
+                  <React.Fragment key={i}>
+                    {para.heading && <h3 className="article-heading" style={{ marginTop: '16px' }}>{para.heading}</h3>}
+                    <p className="article-text">{para.text}</p>
+                  </React.Fragment>
+                ))}
+              </motion.div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -417,4 +501,3 @@ export default function Home() {
     </main>
   );
 }
-

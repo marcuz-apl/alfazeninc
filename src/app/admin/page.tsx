@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -12,25 +12,56 @@ interface Message {
   created_at: string;
 }
 
+interface Paragraph {
+  heading: string;
+  text: string;
+}
+
+interface Article {
+  id?: number;
+  title: string;
+  content: string; // serialized JSON
+  paragraphs?: Paragraph[];
+  image_url: string;
+  image_alt: string;
+  author: string;
+  published_date: string;
+  display_order: number;
+}
+
 export default function AdminPage() {
+  // Authentication & Navigation
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  
+  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('inquiries');
+
+  // Loading States
   const [loading, setLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  // Data States
   const [messages, setMessages] = useState<Message[]>([]);
+  const [content, setContent] = useState<any>(null);
+
+  // Form Fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  // Password change form states
+  // Password Change fields
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
   const [changePasswordError, setChangePasswordError] = useState('');
   const [changePasswordSuccess, setChangePasswordSuccess] = useState('');
+
+  // Section Editing States
+  const [editingCard, setEditingCard] = useState<any>(null); // Services/Team/Gallery/Article card
+  const [editorMode, setEditorMode] = useState<'add' | 'edit' | null>(null);
 
   // Password Strength Criteria
   const isLengthValid = newPassword.length >= 8;
@@ -42,34 +73,40 @@ export default function AdminPage() {
   const isNewPasswordStrong = isLengthValid && hasUpper && hasLower && hasDigit && hasSpecial;
   const canSubmitChangePassword = isNewPasswordStrong && passwordsMatch && currentPassword.length > 0;
 
-  // Fetch messages if session cookie exists
-  const fetchMessages = async () => {
+  // Initialize
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/admin/messages');
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
+      // Fetch messages (only accessible if authenticated)
+      const msgRes = await fetch('/api/admin/messages');
+      if (msgRes.ok) {
+        const msgData = await msgRes.json();
+        setMessages(msgData.messages || []);
         setIsLoggedIn(true);
         setMustChangePassword(false);
-      } else if (response.status === 403) {
+      } else if (msgRes.status === 403) {
         setIsLoggedIn(true);
         setMustChangePassword(true);
-      } else if (response.status === 401) {
+      } else if (msgRes.status === 401) {
         setIsLoggedIn(false);
       }
+
+      // Fetch dynamic homepage contents (public access)
+      const contentRes = await fetch('/api/content');
+      if (contentRes.ok) {
+        const contentData = await contentRes.json();
+        setContent(contentData);
+      }
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error('Error fetching admin data:', err);
     } finally {
       setLoading(false);
     }
   };
-
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    fetchMessages();
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +127,7 @@ export default function AdminPage() {
           setMustChangePassword(true);
         } else {
           setIsLoggedIn(true);
-          fetchMessages();
+          fetchData();
         }
       } else {
         const errData = await response.json();
@@ -120,18 +157,15 @@ export default function AdminPage() {
 
       if (response.ok) {
         setChangePasswordSuccess('Password updated successfully!');
-        
-        // Reset states
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
 
-        // Wait a second to show success, then proceed
         setTimeout(() => {
           setMustChangePassword(false);
           setIsChangePasswordModalOpen(false);
           setChangePasswordSuccess('');
-          fetchMessages();
+          fetchData();
         }, 1500);
       } else {
         const errData = await response.json();
@@ -153,16 +187,13 @@ export default function AdminPage() {
         setMessages([]);
         setUsername('');
         setPassword('');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
       }
     } catch (err) {
       console.error('Logout error:', err);
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDeleteMessage = async (id: number) => {
     if (!confirm('Are you sure you want to delete this message?')) return;
 
     try {
@@ -178,177 +209,373 @@ export default function AdminPage() {
         alert('Failed to delete the message.');
       }
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error('Delete message error:', err);
     }
   };
 
-  if (!mounted || loading) {
+  // Content Saving Helpers
+  const showNotification = (msg: string, isError = false) => {
+    if (isError) {
+      setError(msg);
+      setTimeout(() => setError(''), 4000);
+    } else {
+      setSuccess(msg);
+      setTimeout(() => setSuccess(''), 4000);
+    }
+  };
+
+  // 1. Save Hero Settings
+  const handleSaveHero = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const response = await fetch('/api/admin/content/hero', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: content.hero.title,
+          content: content.hero.content,
+          show_contact_us: content.hero.show_contact_us
+        })
+      });
+      if (response.ok) {
+        showNotification('Hero settings saved successfully!');
+      } else {
+        showNotification('Failed to save Hero settings.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving Hero settings.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  // 2. Save Services Header Title
+  const handleSaveServicesTitle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const response = await fetch('/api/admin/content/services', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settingsTitle: content.servicesSettings.title })
+      });
+      if (response.ok) {
+        showNotification('Services section title saved successfully!');
+      } else {
+        showNotification('Failed to save services title.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving services title.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  // 3. Save Services Card (Add / Edit)
+  const handleSaveServiceCard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const method = editorMode === 'add' ? 'POST' : 'PUT';
+      const response = await fetch('/api/admin/content/services', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingCard)
+      });
+      if (response.ok) {
+        showNotification(`Service card ${editorMode === 'add' ? 'created' : 'updated'} successfully!`);
+        setEditorMode(null);
+        setEditingCard(null);
+        fetchData();
+      } else {
+        showNotification('Failed to save service card.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving service card.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteServiceCard = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this service card?')) return;
+    try {
+      const response = await fetch('/api/admin/content/services', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (response.ok) {
+        showNotification('Service card deleted successfully!');
+        fetchData();
+      } else {
+        showNotification('Failed to delete service card.', true);
+      }
+    } catch (err) {
+      showNotification('Error deleting service card.', true);
+    }
+  };
+
+  // 4. Save Gallery Settings
+  const handleSaveGallerySettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const response = await fetch('/api/admin/content/gallery', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sliding_effect: content.gallerySettings.sliding_effect,
+          autoplay_speed: content.gallerySettings.autoplay_speed
+        })
+      });
+      if (response.ok) {
+        showNotification('Gallery carousel settings saved!');
+      } else {
+        showNotification('Failed to save gallery settings.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving gallery settings.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  // 5. Save Gallery Item (Add / Edit)
+  const handleSaveGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const method = editorMode === 'add' ? 'POST' : 'PUT';
+      const response = await fetch('/api/admin/content/gallery', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingCard)
+      });
+      if (response.ok) {
+        showNotification(`Gallery slide ${editorMode === 'add' ? 'created' : 'updated'} successfully!`);
+        setEditorMode(null);
+        setEditingCard(null);
+        fetchData();
+      } else {
+        showNotification('Failed to save gallery slide.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving gallery slide.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteGalleryItem = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this gallery item?')) return;
+    try {
+      const response = await fetch('/api/admin/content/gallery', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (response.ok) {
+        showNotification('Gallery slide deleted successfully!');
+        fetchData();
+      } else {
+        showNotification('Failed to delete gallery slide.', true);
+      }
+    } catch (err) {
+      showNotification('Error deleting gallery slide.', true);
+    }
+  };
+
+  // 6. Save Team Card (Add / Edit)
+  const handleSaveTeamCard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const method = editorMode === 'add' ? 'POST' : 'PUT';
+      const response = await fetch('/api/admin/content/team', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingCard)
+      });
+      if (response.ok) {
+        showNotification(`Team member card ${editorMode === 'add' ? 'created' : 'updated'} successfully!`);
+        setEditorMode(null);
+        setEditingCard(null);
+        fetchData();
+      } else {
+        showNotification('Failed to save team member.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving team member.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteTeamCard = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this team member?')) return;
+    try {
+      const response = await fetch('/api/admin/content/team', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (response.ok) {
+        showNotification('Team member card deleted successfully!');
+        fetchData();
+      } else {
+        showNotification('Failed to delete team member.', true);
+      }
+    } catch (err) {
+      showNotification('Error deleting team member.', true);
+    }
+  };
+
+  // 7. Save Article Post (Add / Edit)
+  const handleSaveArticlePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaveLoading(true);
+    try {
+      const method = editorMode === 'add' ? 'POST' : 'PUT';
+      // Serialize paragraphs array into content field
+      const postData = {
+        ...editingCard,
+        content: JSON.stringify(editingCard.paragraphs)
+      };
+      
+      const response = await fetch('/api/admin/content/articles', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      });
+      if (response.ok) {
+        showNotification(`Article post ${editorMode === 'add' ? 'created' : 'updated'} successfully!`);
+        setEditorMode(null);
+        setEditingCard(null);
+        fetchData();
+      } else {
+        showNotification('Failed to save article post.', true);
+      }
+    } catch (err) {
+      showNotification('Error saving article post.', true);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDeleteArticlePost = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this article post?')) return;
+    try {
+      const response = await fetch('/api/admin/content/articles', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (response.ok) {
+        showNotification('Article post deleted successfully!');
+        fetchData();
+      } else {
+        showNotification('Failed to delete article post.', true);
+      }
+    } catch (err) {
+      showNotification('Error deleting article post.', true);
+    }
+  };
+
+  if (loading) {
     return (
       <div className="admin-loading-container">
         <div className="admin-spinner" />
-        <p>Loading admin panel...</p>
+        <p>Loading administration panel...</p>
       </div>
     );
   }
 
   return (
     <div className="admin-page-container">
+      {/* Toast Notification Banners */}
+      <AnimatePresence>
+        {success && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="admin-success-banner" style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 1100 }}>
+            {success}
+          </motion.div>
+        )}
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="admin-error-banner" style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 1100 }}>
+            {error}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {!isLoggedIn ? (
-          <motion.div
-            key="login"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="admin-login-wrapper"
-          >
+          <motion.div key="login" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="admin-login-wrapper">
             <form onSubmit={handleLogin} className="card admin-login-card">
               <h2 className="admin-title">Admin Access</h2>
-              <p className="admin-subtitle">Enter credentials to manage guest inquiries.</p>
+              <p className="admin-subtitle">Enter credentials to manage the website content.</p>
 
-              {error && <div className="admin-error-banner">{error}</div>}
+              {error && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{error}</div>}
 
               <div className="form-group">
                 <label className="label" htmlFor="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  required
-                  className="input"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin"
-                />
+                <input type="text" id="username" required className="input" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="admin" />
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
                 <label className="label" htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  required
-                  className="input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <input type="password" id="password" required className="input" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
 
-              <button
-                type="submit"
-                disabled={loginLoading}
-                className="btn"
-                style={{ width: '100%', marginTop: '24px' }}
-              >
+              <button type="submit" disabled={loginLoading} className="btn" style={{ width: '100%', marginTop: '24px' }}>
                 {loginLoading ? 'Logging in...' : 'Login'}
               </button>
             </form>
           </motion.div>
         ) : mustChangePassword ? (
-          <motion.div
-            key="force-change-password"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="admin-login-wrapper"
-          >
+          <motion.div key="force-change-password" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="admin-login-wrapper">
             <form onSubmit={handleChangePassword} className="card admin-login-card">
               <h2 className="admin-title">Update Password</h2>
-              <p className="admin-subtitle">For security reasons, please update your default password to a strong one before proceeding.</p>
+              <p className="admin-subtitle">Update your password to a strong one before proceeding.</p>
 
-              {changePasswordError && <div className="admin-error-banner">{changePasswordError}</div>}
-              {changePasswordSuccess && <div className="admin-success-banner">{changePasswordSuccess}</div>}
+              {changePasswordError && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{changePasswordError}</div>}
+              {changePasswordSuccess && <div className="admin-success-banner" style={{ marginBottom: '16px' }}>{changePasswordSuccess}</div>}
 
               <div className="form-group">
                 <label className="label" htmlFor="currentPassword">Current Password</label>
-                <input
-                  type="password"
-                  id="currentPassword"
-                  required
-                  className="input"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <input type="password" id="currentPassword" required className="input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
                 <label className="label" htmlFor="newPassword">New Password</label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  required
-                  className="input"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <input type="password" id="newPassword" required className="input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
                 <label className="label" htmlFor="confirmPassword">Confirm New Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  required
-                  className="input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <input type="password" id="confirmPassword" required className="input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
               </div>
 
-              {/* Password strength checklist */}
-              <div className="password-checklist">
-                <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}>
-                  <span className="bullet">{isLengthValid ? '✓' : '•'}</span> At least 8 characters
-                </div>
-                <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}>
-                  <span className="bullet">{hasUpper ? '✓' : '•'}</span> At least 1 uppercase letter (A-Z)
-                </div>
-                <div className={`checklist-item ${hasLower ? 'valid' : ''}`}>
-                  <span className="bullet">{hasLower ? '✓' : '•'}</span> At least 1 lowercase letter (a-z)
-                </div>
-                <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}>
-                  <span className="bullet">{hasDigit ? '✓' : '•'}</span> At least 1 number (0-9)
-                </div>
-                <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}>
-                  <span className="bullet">{hasSpecial ? '✓' : '•'}</span> At least 1 special character (@$!%*?&#)
-                </div>
-                <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}>
-                  <span className="bullet">{passwordsMatch ? '✓' : '•'}</span> Passwords match
-                </div>
+              <div className="password-checklist" style={{ marginTop: '16px' }}>
+                <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}><span className="bullet">✓</span> At least 8 characters</div>
+                <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 uppercase letter</div>
+                <div className={`checklist-item ${hasLower ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 lowercase letter</div>
+                <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 number</div>
+                <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 special character</div>
+                <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}><span className="bullet">✓</span> Passwords match</div>
               </div>
 
-              <button
-                type="submit"
-                disabled={changePasswordLoading || !canSubmitChangePassword}
-                className="btn"
-                style={{ width: '100%', marginTop: '24px' }}
-              >
+              <button type="submit" disabled={changePasswordLoading || !canSubmitChangePassword} className="btn" style={{ width: '100%', marginTop: '24px' }}>
                 {changePasswordLoading ? 'Updating...' : 'Update Password'}
               </button>
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="btn btn-secondary"
-                style={{ width: '100%', marginTop: '12px' }}
-              >
+              <button type="button" onClick={handleLogout} className="btn btn-secondary" style={{ width: '100%', marginTop: '12px' }}>
                 Cancel / Logout
               </button>
             </form>
           </motion.div>
         ) : (
-          <motion.div
-            key="dashboard"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="admin-dashboard-wrapper"
-          >
+          <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-dashboard-wrapper">
             {/* Dashboard Header */}
             <header className="admin-header">
               <div className="brand-group-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -368,7 +595,7 @@ export default function AdminPage() {
                 <div className="brand-group">
                   <h1 className="admin-dashboard-title">Alfazen Inc.</h1>
                   <span className="brand-slogan" style={{ fontSize: '12px' }}>Stay Zen at First Place</span>
-                  <p className="admin-dashboard-subtitle" style={{ marginTop: '4px' }}>Guest Message Management Console</p>
+                  <p className="admin-dashboard-subtitle" style={{ marginTop: '4px' }}>Content Management System Dashboard</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
@@ -381,85 +608,742 @@ export default function AdminPage() {
               </div>
             </header>
 
-            {/* Dashboard Stats */}
-            <div className="admin-stats-grid">
-              <div className="card admin-stat-card">
-                <h3>Total Inquiries</h3>
-                <p className="stat-number">{messages.length}</p>
-              </div>
-              <div className="card admin-stat-card">
-                <h3>Latest Activity</h3>
-                <p className="stat-number">
-                  {messages.length > 0 
-                    ? new Date(messages[0].created_at).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : 'No messages'}
-                </p>
-              </div>
+            {/* Dashboard Tabs Navigation */}
+            <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
+              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setEditorMode(null);
+                    setEditingCard(null);
+                  }}
+                  className={`footer-btn ${activeTab === tab ? 'active' : ''}`}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    textTransform: 'capitalize',
+                    fontWeight: activeTab === tab ? 'bold' : 'normal',
+                    backgroundColor: activeTab === tab ? 'var(--surface)' : 'transparent',
+                    color: activeTab === tab ? 'var(--primary)' : 'var(--text-muted)',
+                    border: activeTab === tab ? '1px solid var(--surface-border)' : '1px solid transparent'
+                  }}
+                >
+                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab}
+                </button>
+              ))}
             </div>
 
-            {/* Message List Table */}
-            <div className="card admin-table-card">
-              <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Inbox Submissions</h2>
-              
-              {messages.length === 0 ? (
-                <div className="admin-empty-state">
-                  <p>No messages received yet.</p>
+            {/* Tab Contents */}
+            <div className="admin-tab-content">
+              {/* Tab 1: Inquiries */}
+              {activeTab === 'inquiries' && (
+                <div>
+                  {/* Dashboard Stats */}
+                  <div className="admin-stats-grid" style={{ marginBottom: '24px' }}>
+                    <div className="card admin-stat-card">
+                      <h3>Total Inquiries</h3>
+                      <p className="stat-number">{messages.length}</p>
+                    </div>
+                    <div className="card admin-stat-card">
+                      <h3>Latest Inquiry</h3>
+                      <p className="stat-number" style={{ fontSize: '18px' }}>
+                        {messages.length > 0
+                          ? new Date(messages[0].created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                          : 'No messages'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="card admin-table-card">
+                    <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Inbox Submissions</h2>
+                    {messages.length === 0 ? (
+                      <div className="admin-empty-state"><p>No messages received yet.</p></div>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid var(--surface-border)', textAlign: 'left' }}>
+                              <th style={{ padding: '12px' }}>Date</th>
+                              <th style={{ padding: '12px' }}>Sender</th>
+                              <th style={{ padding: '12px' }}>Contact</th>
+                              <th style={{ padding: '12px' }}>Message</th>
+                              <th style={{ padding: '12px' }}>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {messages.map((msg) => (
+                              <tr key={msg.id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                                <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                                  {new Date(msg.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                                <td style={{ padding: '12px' }}><strong>{msg.name}</strong></td>
+                                <td style={{ padding: '12px' }}>
+                                  <div>{msg.email}</div>
+                                  {msg.phone && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{msg.phone}</div>}
+                                </td>
+                                <td style={{ padding: '12px', maxWidth: '400px' }}>{msg.message}</td>
+                                <td style={{ padding: '12px' }}>
+                                  <button onClick={() => handleDeleteMessage(msg.id)} className="admin-delete-btn" style={{ padding: '6px 12px', border: '1px solid var(--surface-border)', borderRadius: '4px', cursor: 'pointer' }}>
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Sender</th>
-                        <th>Contact</th>
-                        <th>Message</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <AnimatePresence>
-                        {messages.map((msg) => (
-                          <motion.tr
-                            key={msg.id}
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, x: -50 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <td className="td-date">
-                              {new Date(msg.created_at).toLocaleDateString(undefined, {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </td>
-                            <td className="td-name"><strong>{msg.name}</strong></td>
-                            <td className="td-contact">
-                              <div>{msg.email}</div>
-                              {msg.phone && <div className="td-phone">{msg.phone}</div>}
-                            </td>
-                            <td className="td-message">{msg.message}</td>
-                            <td>
-                              <button
-                                onClick={() => handleDelete(msg.id)}
-                                className="admin-delete-btn"
-                                aria-label="Delete inquiries"
+              )}
+
+              {/* Tab 2: Hero Section */}
+              {activeTab === 'hero' && content && (
+                <div className="card" style={{ maxWidth: '800px' }}>
+                  <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>Edit Hero Section</h2>
+                  <form onSubmit={handleSaveHero}>
+                    <div className="form-group">
+                      <label className="label">Hero Title</label>
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={content.hero.title} 
+                        onChange={(e) => setContent({ ...content, hero: { ...content.hero, title: e.target.value } })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginTop: '16px' }}>
+                      <label className="label">Hero Context / Paragraph Text</label>
+                      <textarea 
+                        className="input" 
+                        rows={6}
+                        value={content.hero.content} 
+                        onChange={(e) => setContent({ ...content, hero: { ...content.hero, content: e.target.value } })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <input 
+                        type="checkbox" 
+                        id="show_contact_us"
+                        checked={content.hero.show_contact_us === 1}
+                        onChange={(e) => setContent({ ...content, hero: { ...content.hero, show_contact_us: e.target.checked ? 1 : 0 } })}
+                        style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                      />
+                      <label htmlFor="show_contact_us" className="label" style={{ margin: 0, cursor: 'pointer' }}>
+                        Display "Contact Us" CTA Button
+                      </label>
+                    </div>
+                    <button type="submit" disabled={saveLoading} className="btn" style={{ marginTop: '24px' }}>
+                      {saveLoading ? 'Saving Settings...' : 'Save Settings'}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Tab 3: Services */}
+              {activeTab === 'services' && content && (
+                <div>
+                  {/* Edit Section Title */}
+                  <div className="card" style={{ marginBottom: '24px' }}>
+                    <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--primary)' }}>Edit Services Section Title</h2>
+                    <form onSubmit={handleSaveServicesTitle} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <input 
+                          type="text" 
+                          className="input" 
+                          value={content.servicesSettings.title} 
+                          onChange={(e) => setContent({ ...content, servicesSettings: { ...content.servicesSettings, title: e.target.value } })}
+                          required
+                        />
+                      </div>
+                      <button type="submit" disabled={saveLoading} className="btn" style={{ height: '48px' }}>
+                        Save Title
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Card CRUD Interface */}
+                  {editorMode === null ? (
+                    <div className="card">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ fontSize: '20px', margin: 0 }}>Service Offerings Cards</h2>
+                        <button 
+                          onClick={() => {
+                            setEditorMode('add');
+                            setEditingCard({ title: '', description: '', image_url: '', image_alt: '', display_order: content.services.length + 1 });
+                          }}
+                          className="btn"
+                        >
+                          + Add Service Card
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {content.services.map((card: any) => (
+                          <div key={card.id} style={{ display: 'flex', gap: '20px', border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px', backgroundColor: 'var(--surface)', alignItems: 'center' }}>
+                            <img src={card.image_url} alt={card.image_alt} style={{ width: '100px', height: '70px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--surface-border)' }} />
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary)' }}>{card.title}</h3>
+                              <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>{card.description}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button 
+                                onClick={() => {
+                                  setEditorMode('edit');
+                                  setEditingCard(card);
+                                }}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px' }}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteServiceCard(card.id)}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px', color: 'var(--accent)', borderColor: 'var(--accent)' }}
                               >
                                 Delete
                               </button>
-                            </td>
-                          </motion.tr>
+                            </div>
+                          </div>
                         ))}
-                      </AnimatePresence>
-                    </tbody>
-                  </table>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Add/Edit Modal Form */
+                    <div className="card" style={{ maxWidth: '700px' }}>
+                      <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>
+                        {editorMode === 'add' ? 'Add Service Card' : 'Edit Service Card'}
+                      </h2>
+                      <form onSubmit={handleSaveServiceCard}>
+                        <div className="form-group">
+                          <label className="label">Title</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.title} 
+                            onChange={(e) => setEditingCard({ ...editingCard, title: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Description</label>
+                          <textarea 
+                            className="input" 
+                            rows={4}
+                            value={editingCard.description} 
+                            onChange={(e) => setEditingCard({ ...editingCard, description: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Image URL</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.image_url} 
+                            onChange={(e) => setEditingCard({ ...editingCard, image_url: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Image Alt Description</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.image_alt} 
+                            onChange={(e) => setEditingCard({ ...editingCard, image_alt: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Display Order Index</label>
+                          <input 
+                            type="number" 
+                            className="input" 
+                            value={editingCard.display_order} 
+                            onChange={(e) => setEditingCard({ ...editingCard, display_order: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                          <button type="submit" disabled={saveLoading} className="btn">
+                            {saveLoading ? 'Saving...' : 'Save Card'}
+                          </button>
+                          <button type="button" onClick={() => { setEditorMode(null); setEditingCard(null); }} className="btn btn-secondary">
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 4: Gallery */}
+              {activeTab === 'gallery' && content && (
+                <div>
+                  {/* Settings section */}
+                  <div className="card" style={{ marginBottom: '24px' }}>
+                    <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--primary)' }}>Gallery Settings</h2>
+                    <form onSubmit={handleSaveGallerySettings} style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                      <div className="form-group" style={{ minWidth: '200px', flex: 1 }}>
+                        <label className="label">Sliding Effect</label>
+                        <select 
+                          className="input" 
+                          value={content.gallerySettings.sliding_effect}
+                          onChange={(e) => setContent({ ...content, gallerySettings: { ...content.gallerySettings, sliding_effect: e.target.value } })}
+                        >
+                          <option value="slide">Slide (Horizontal)</option>
+                          <option value="fade">Fade (Dissolve)</option>
+                        </select>
+                      </div>
+                      <div className="form-group" style={{ minWidth: '200px', flex: 1 }}>
+                        <label className="label">Autoplay Speed (ms)</label>
+                        <input 
+                          type="number" 
+                          className="input" 
+                          value={content.gallerySettings.autoplay_speed}
+                          onChange={(e) => setContent({ ...content, gallerySettings: { ...content.gallerySettings, autoplay_speed: parseInt(e.target.value) || 0 } })}
+                        />
+                      </div>
+                      <button type="submit" disabled={saveLoading} className="btn" style={{ height: '48px' }}>
+                        Save Settings
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Slides list */}
+                  {editorMode === null ? (
+                    <div className="card">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ fontSize: '20px', margin: 0 }}>Gallery Slides</h2>
+                        <button 
+                          onClick={() => {
+                            setEditorMode('add');
+                            setEditingCard({ image_url: '', image_alt: '', display_order: content.gallery.length + 1 });
+                          }}
+                          className="btn"
+                        >
+                          + Add Slide Image
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                        {content.gallery.map((item: any) => (
+                          <div key={item.id} style={{ border: '1px solid var(--surface-border)', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
+                            <img src={item.image_url} alt={item.image_alt} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
+                            <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', flex: 1 }}>{item.image_alt}</p>
+                              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                                <button 
+                                  onClick={() => {
+                                    setEditorMode('edit');
+                                    setEditingCard(item);
+                                  }}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '6px 12px', flex: 1, fontSize: '13px' }}
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteGalleryItem(item.id)}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '6px 12px', flex: 1, fontSize: '13px', color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Slide modal form */
+                    <div className="card" style={{ maxWidth: '600px' }}>
+                      <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>
+                        {editorMode === 'add' ? 'Add Slide' : 'Edit Slide'}
+                      </h2>
+                      <form onSubmit={handleSaveGalleryItem}>
+                        <div className="form-group">
+                          <label className="label">Image URL</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.image_url} 
+                            onChange={(e) => setEditingCard({ ...editingCard, image_url: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Caption / Description (Alt text)</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.image_alt} 
+                            onChange={(e) => setEditingCard({ ...editingCard, image_alt: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Display Order Index</label>
+                          <input 
+                            type="number" 
+                            className="input" 
+                            value={editingCard.display_order} 
+                            onChange={(e) => setEditingCard({ ...editingCard, display_order: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                          <button type="submit" disabled={saveLoading} className="btn">
+                            {saveLoading ? 'Saving...' : 'Save Slide'}
+                          </button>
+                          <button type="button" onClick={() => { setEditorMode(null); setEditingCard(null); }} className="btn btn-secondary">
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 5: Team */}
+              {activeTab === 'team' && content && (
+                <div>
+                  {editorMode === null ? (
+                    <div className="card">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ fontSize: '20px', margin: 0 }}>Team Profiles</h2>
+                        <button 
+                          onClick={() => {
+                            setEditorMode('add');
+                            setEditingCard({ name: '', role: '', bio: '', image_url: '', display_order: content.team.length + 1 });
+                          }}
+                          className="btn"
+                        >
+                          + Add Team Member
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {content.team.map((member: any) => (
+                          <div key={member.id} style={{ display: 'flex', gap: '20px', border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px', backgroundColor: 'var(--surface)', alignItems: 'center' }}>
+                            <img src={member.image_url} alt={member.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%', border: '2px solid var(--primary)' }} />
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary)' }}>{member.name}</h3>
+                              <h4 style={{ margin: '2px 0 6px 0', fontSize: '14px', color: 'var(--accent)' }}>{member.role}</h4>
+                              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)' }}>{member.bio}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button 
+                                onClick={() => {
+                                  setEditorMode('edit');
+                                  setEditingCard(member);
+                                }}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px' }}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteTeamCard(member.id)}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px', color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Team Modal Form */
+                    <div className="card" style={{ maxWidth: '700px' }}>
+                      <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>
+                        {editorMode === 'add' ? 'Add Team Member' : 'Edit Team Member'}
+                      </h2>
+                      <form onSubmit={handleSaveTeamCard}>
+                        <div className="form-group">
+                          <label className="label">Name</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.name} 
+                            onChange={(e) => setEditingCard({ ...editingCard, name: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Role</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.role} 
+                            onChange={(e) => setEditingCard({ ...editingCard, role: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Biography Text</label>
+                          <textarea 
+                            className="input" 
+                            rows={4}
+                            value={editingCard.bio} 
+                            onChange={(e) => setEditingCard({ ...editingCard, bio: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Image URL</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.image_url} 
+                            onChange={(e) => setEditingCard({ ...editingCard, image_url: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Display Order Index</label>
+                          <input 
+                            type="number" 
+                            className="input" 
+                            value={editingCard.display_order} 
+                            onChange={(e) => setEditingCard({ ...editingCard, display_order: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                          <button type="submit" disabled={saveLoading} className="btn">
+                            {saveLoading ? 'Saving...' : 'Save Member'}
+                          </button>
+                          <button type="button" onClick={() => { setEditorMode(null); setEditingCard(null); }} className="btn btn-secondary">
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 6: Articles */}
+              {activeTab === 'articles' && content && (
+                <div>
+                  {editorMode === null ? (
+                    <div className="card">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ fontSize: '20px', margin: 0 }}>Article Posts</h2>
+                        <button 
+                          onClick={() => {
+                            setEditorMode('add');
+                            setEditingCard({
+                              title: '',
+                              paragraphs: [{ heading: '', text: '' }],
+                              image_url: '',
+                              image_alt: '',
+                              author: '',
+                              published_date: new Date().toISOString().split('T')[0],
+                              display_order: content.articles.length + 1
+                            });
+                          }}
+                          className="btn"
+                        >
+                          + Add Article Post
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {content.articles.map((post: any) => (
+                          <div key={post.id} style={{ display: 'flex', gap: '20px', border: '1px solid var(--surface-border)', borderRadius: '8px', padding: '16px', backgroundColor: 'var(--surface)', alignItems: 'center' }}>
+                            <img src={post.image_url} alt={post.image_alt} style={{ width: '110px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--surface-border)' }} />
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary)' }}>{post.title}</h3>
+                              <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                                By {post.author || 'Anonymous'} | {post.published_date}
+                              </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button 
+                                onClick={() => {
+                                  setEditorMode('edit');
+                                  setEditingCard(post);
+                                }}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px' }}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteArticlePost(post.id)}
+                                className="btn btn-secondary"
+                                style={{ padding: '8px 16px', color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Article Modal Form */
+                    <div className="card" style={{ maxWidth: '800px' }}>
+                      <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>
+                        {editorMode === 'add' ? 'Add Article Post' : 'Edit Article Post'}
+                      </h2>
+                      <form onSubmit={handleSaveArticlePost}>
+                        <div className="form-group">
+                          <label className="label">Title</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.title} 
+                            onChange={(e) => setEditingCard({ ...editingCard, title: e.target.value })}
+                            required
+                          />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                          <div className="form-group">
+                            <label className="label">Author Name</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={editingCard.author} 
+                              onChange={(e) => setEditingCard({ ...editingCard, author: e.target.value })}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="label">Published Date (YYYY-MM-DD)</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={editingCard.published_date} 
+                              onChange={(e) => setEditingCard({ ...editingCard, published_date: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '16px', marginTop: '16px' }}>
+                          <div className="form-group">
+                            <label className="label">Image URL</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={editingCard.image_url} 
+                              onChange={(e) => setEditingCard({ ...editingCard, image_url: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="label">Image Alt text</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={editingCard.image_alt} 
+                              onChange={(e) => setEditingCard({ ...editingCard, image_alt: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        {/* Paragraphs Manager */}
+                        <div style={{ marginTop: '24px', borderTop: '1px solid var(--surface-border)', paddingTop: '20px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <h3 style={{ margin: 0, fontSize: '18px' }}>Post Content Sections</h3>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const paragraphs = [...(editingCard.paragraphs || [])];
+                                paragraphs.push({ heading: '', text: '' });
+                                setEditingCard({ ...editingCard, paragraphs });
+                              }}
+                              className="btn btn-secondary"
+                              style={{ padding: '6px 12px', fontSize: '13px' }}
+                            >
+                              + Add Paragraph Block
+                            </button>
+                          </div>
+
+                          {(editingCard.paragraphs || []).map((para: Paragraph, idx: number) => (
+                            <div key={idx} style={{ border: '1px solid var(--surface-border)', borderRadius: '6px', padding: '16px', marginBottom: '16px', backgroundColor: 'var(--surface)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                <span style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--primary)' }}>Block #{idx + 1}</span>
+                                {(editingCard.paragraphs || []).length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const paragraphs = editingCard.paragraphs.filter((_: any, i: number) => i !== idx);
+                                      setEditingCard({ ...editingCard, paragraphs });
+                                    }}
+                                    style={{ color: 'var(--accent)', border: 'none', background: 'none', cursor: 'pointer', fontSize: '13px' }}
+                                  >
+                                    Remove Block
+                                  </button>
+                                )}
+                              </div>
+                              <div className="form-group">
+                                <label className="label" style={{ fontSize: '13px' }}>Block Heading (Optional)</label>
+                                <input
+                                  type="text"
+                                  className="input"
+                                  value={para.heading}
+                                  onChange={(e) => {
+                                    const paragraphs = [...editingCard.paragraphs];
+                                    paragraphs[idx].heading = e.target.value;
+                                    setEditingCard({ ...editingCard, paragraphs });
+                                  }}
+                                  placeholder="e.g. Expertise Rooted in Experience"
+                                />
+                              </div>
+                              <div className="form-group" style={{ marginTop: '12px' }}>
+                                <label className="label" style={{ fontSize: '13px' }}>Paragraph Content</label>
+                                <textarea
+                                  className="input"
+                                  rows={4}
+                                  value={para.text}
+                                  onChange={(e) => {
+                                    const paragraphs = [...editingCard.paragraphs];
+                                    paragraphs[idx].text = e.target.value;
+                                    setEditingCard({ ...editingCard, paragraphs });
+                                  }}
+                                  placeholder="Paragraph text..."
+                                  required
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Display Order Index</label>
+                          <input 
+                            type="number" 
+                            className="input" 
+                            value={editingCard.display_order} 
+                            onChange={(e) => setEditingCard({ ...editingCard, display_order: parseInt(e.target.value) || 0 })}
+                            required
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                          <button type="submit" disabled={saveLoading} className="btn">
+                            {saveLoading ? 'Saving...' : 'Save Article'}
+                          </button>
+                          <button type="button" onClick={() => { setEditorMode(null); setEditingCard(null); }} className="btn btn-secondary">
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -467,7 +1351,7 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Change Password Modal */}
+      {/* Change Password Modal (Admin logged in) */}
       <AnimatePresence>
         {isChangePasswordModalOpen && (
           <motion.div
@@ -493,90 +1377,39 @@ export default function AdminPage() {
               <h2 className="admin-title">Change Password</h2>
               <p className="admin-subtitle">Update your administrative credentials.</p>
 
-              {changePasswordError && <div className="admin-error-banner">{changePasswordError}</div>}
-              {changePasswordSuccess && <div className="admin-success-banner">{changePasswordSuccess}</div>}
+              {changePasswordError && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{changePasswordError}</div>}
+              {changePasswordSuccess && <div className="admin-success-banner" style={{ marginBottom: '16px' }}>{changePasswordSuccess}</div>}
 
               <form onSubmit={handleChangePassword}>
                 <div className="form-group">
                   <label className="label" htmlFor="modalCurrentPassword">Current Password</label>
-                  <input
-                    type="password"
-                    id="modalCurrentPassword"
-                    required
-                    className="input"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
+                  <input type="password" id="modalCurrentPassword" required className="input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
                 </div>
 
                 <div className="form-group" style={{ marginTop: '16px' }}>
                   <label className="label" htmlFor="modalNewPassword">New Password</label>
-                  <input
-                    type="password"
-                    id="modalNewPassword"
-                    required
-                    className="input"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
+                  <input type="password" id="modalNewPassword" required className="input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
                 </div>
 
                 <div className="form-group" style={{ marginTop: '16px' }}>
                   <label className="label" htmlFor="modalConfirmPassword">Confirm New Password</label>
-                  <input
-                    type="password"
-                    id="modalConfirmPassword"
-                    required
-                    className="input"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                  />
+                  <input type="password" id="modalConfirmPassword" required className="input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
                 </div>
 
-                {/* Password strength checklist */}
-                <div className="password-checklist">
-                  <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}>
-                    <span className="bullet">{isLengthValid ? '✓' : '•'}</span> At least 8 characters
-                  </div>
-                  <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}>
-                    <span className="bullet">{hasUpper ? '✓' : '•'}</span> At least 1 uppercase letter (A-Z)
-                  </div>
-                  <div className={`checklist-item ${hasLower ? 'valid' : ''}`}>
-                    <span className="bullet">{hasLower ? '✓' : '•'}</span> At least 1 lowercase letter (a-z)
-                  </div>
-                  <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}>
-                    <span className="bullet">{hasDigit ? '✓' : '•'}</span> At least 1 number (0-9)
-                  </div>
-                  <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}>
-                    <span className="bullet">{hasSpecial ? '✓' : '•'}</span> At least 1 special character (@$!%*?&#)
-                  </div>
-                  <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}>
-                    <span className="bullet">{passwordsMatch ? '✓' : '•'}</span> Passwords match
-                  </div>
+                <div className="password-checklist" style={{ marginTop: '16px' }}>
+                  <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}><span className="bullet">✓</span> At least 8 characters</div>
+                  <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 uppercase letter</div>
+                  <div className={`checklist-item ${hasLower ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 lowercase letter</div>
+                  <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 number</div>
+                  <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 special character</div>
+                  <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}><span className="bullet">✓</span> Passwords match</div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsChangePasswordModalOpen(false);
-                      setChangePasswordError('');
-                      setChangePasswordSuccess('');
-                    }}
-                    className="btn btn-secondary"
-                    style={{ flex: 1 }}
-                  >
+                  <button type="button" onClick={() => { setIsChangePasswordModalOpen(false); setChangePasswordError(''); setChangePasswordSuccess(''); }} className="btn btn-secondary" style={{ flex: 1 }}>
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={changePasswordLoading || !canSubmitChangePassword}
-                    className="btn"
-                    style={{ flex: 1 }}
-                  >
+                  <button type="submit" disabled={changePasswordLoading || !canSubmitChangePassword} className="btn" style={{ flex: 1 }}>
                     {changePasswordLoading ? 'Saving...' : 'Save Password'}
                   </button>
                 </div>

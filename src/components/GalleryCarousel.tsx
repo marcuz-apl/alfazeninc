@@ -3,42 +3,32 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const images = [
-  {
-    src: 'https://images.unsplash.com/photo-1695060601967-7fb135446f67?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxMXx8b2lsJTIwYW5kJTIwZ2FzJTIwaW5kdXN0cnklMjBkYXRhJTIwc2NpZW5jZSUyMEFJfGVufDB8MHx8fDE3NjM0MDE3NjF8MA&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'A group of oil pumps sitting next to each other'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1729201754182-536252085563?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw2fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'A black and white photo of an oil pump'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw1fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'Oil field operations during sunset'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1694039446022-2d227e8b104b?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxfHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'Oil pumpjack working in remote landscape'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1596017264419-23e7af0e86db?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw4fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'Sunset over industrial infrastructure'
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1562237548-2e0fd9797537?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw0fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-    alt: 'Active ERIELL drilling rig'
-  }
-];
+interface GalleryCarouselProps {
+  images?: { src: string; alt: string }[];
+  slidingEffect?: 'slide' | 'fade';
+  autoplaySpeed?: number;
+}
 
-export default function GalleryCarousel() {
+export default function GalleryCarousel({
+  images = [],
+  slidingEffect = 'slide',
+  autoplaySpeed = 5000
+}: GalleryCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [isHovered, setIsHovered] = useState(false);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Reset index if image length changes and current index is out of bounds
+  useEffect(() => {
+    if (currentIndex >= images.length) {
+      setCurrentIndex(0);
+    }
+  }, [images, currentIndex]);
+
   const slideVariants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 300 : -300,
+      x: slidingEffect === 'slide' ? (dir > 0 ? 300 : -300) : 0,
       opacity: 0
     }),
     center: {
@@ -46,17 +36,19 @@ export default function GalleryCarousel() {
       opacity: 1
     },
     exit: (dir: number) => ({
-      x: dir < 0 ? 300 : -300,
+      x: slidingEffect === 'slide' ? (dir < 0 ? 300 : -300) : 0,
       opacity: 0
     })
   };
 
   const handleNext = () => {
+    if (images.length === 0) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
 
   const handlePrev = () => {
+    if (images.length === 0) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
@@ -68,15 +60,24 @@ export default function GalleryCarousel() {
 
   // Autoplay functionality
   useEffect(() => {
-    if (!isHovered) {
+    if (images.length === 0) return;
+    if (!isHovered && autoplaySpeed > 0) {
       autoplayRef.current = setInterval(() => {
         handleNext();
-      }, 5000);
+      }, autoplaySpeed);
     }
     return () => {
       if (autoplayRef.current) clearInterval(autoplayRef.current);
     };
-  }, [isHovered, currentIndex]);
+  }, [isHovered, currentIndex, images.length, autoplaySpeed]);
+
+  if (images.length === 0) {
+    return (
+      <div className="carousel-viewport" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--surface)' }}>
+        <p style={{ color: 'var(--text-muted)' }}>No images available in gallery.</p>
+      </div>
+    );
+  }
 
   return (
     <div 
