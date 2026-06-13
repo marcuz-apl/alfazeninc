@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alfazen-website
+    restart: unless-stopped
+    ports:
+      - "2038:2038"
+    volumes:
+      # Persist the SQLite database across container restarts
+      - ./data:/app/data
+      
+      # Persist uploaded and synced images
+      - ./public/images:/app/public/images
+    environment:
+      - NODE_ENV=production
+      - PORT=2038
+      # Define your highly secure session secret here for production
+      - SESSION_SECRET=alfazen-secure-secret-token
