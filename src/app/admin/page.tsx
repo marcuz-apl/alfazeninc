@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MediaTab from './components/MediaTab';
+import ProductsTab from './components/ProductsTab';
 
 interface Message {
   id: number;
@@ -35,7 +36,7 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles' | 'media'>('inquiries');
+  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'products' | 'gallery' | 'team' | 'articles' | 'media'>('inquiries');
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -638,7 +639,7 @@ export default function AdminPage() {
 
             {/* Dashboard Tabs Navigation */}
             <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
-              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles', 'media'] as const).map((tab) => (
+              {(['inquiries', 'hero', 'services', 'products', 'gallery', 'team', 'articles', 'media'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -1516,6 +1517,9 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+{activeTab === 'products' && (
+  <ProductsTab showNotification={showNotification} />
+)}
 {activeTab === 'media' && (
   <MediaTab onSyncImages={handleSyncImages} syncLoading={saveLoading} />
 )}

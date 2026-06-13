@@ -101,6 +101,23 @@ db.exec(`
     published_date TEXT,
     display_order INTEGER DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS products_settings (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS products_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    features_json TEXT,
+    color TEXT NOT NULL,
+    logo_url TEXT,
+    display_order INTEGER DEFAULT 0
+  );
 `);
 
 // Safe Migrations for existing databases
@@ -265,6 +282,74 @@ if (hasArticles.count === 0) {
     "Marcus Zou",
     "2026-06-12"
   );
+}
+
+const hasProductsSettings = db.prepare("SELECT count(*) as count FROM products_settings").get() as { count: number };
+if (hasProductsSettings.count === 0) {
+  db.prepare("INSERT INTO products_settings (id, title, description) VALUES (1, ?, ?)").run(
+    "Our Products",
+    "Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry."
+  );
+}
+
+const hasProducts = db.prepare("SELECT count(*) as count FROM products_items").get() as { count: number };
+if (hasProducts.count === 0) {
+  const defaultProducts = [
+    {
+      slug: 'resologix',
+      name: 'ResoLogix',
+      description: 'A premium, full-range Resource Evaluation and Analytics Platform for Petroleum Resources. Engineered for E&P companies to handle the lifecycle of petroleum resources from early discovery to active production.',
+      features_json: JSON.stringify([
+        'Monte Carlo Engine with up to 50k iterations',
+        'Decline Curve Analysis (DCA) for unconventional reservoirs',
+        'Deterministic Economics for on-the-fly NPV & IRR',
+        'Reporting Suite with PDF, Excel, and PowerPoint exports'
+      ]),
+      color: 'var(--primary)',
+      logo_url: '/images/products/resologix-logo-cropped.png',
+      display_order: 1
+    },
+    {
+      slug: 'elogant',
+      name: 'Elogant',
+      description: 'Intelligent well logging and data interpretation. Streamline operations with automated insights and highly accurate predictions.',
+      features_json: null,
+      color: 'var(--secondary)',
+      logo_url: null,
+      display_order: 2
+    },
+    {
+      slug: 'diabit',
+      name: 'Diabit',
+      description: 'Predictive maintenance and equipment health monitoring. Prevent downtime before it happens using advanced machine learning algorithms.',
+      features_json: null,
+      color: 'var(--primary)',
+      logo_url: null,
+      display_order: 3
+    },
+    {
+      slug: 'seiscul',
+      name: 'Seiscul',
+      description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
+      features_json: null,
+      color: 'var(--secondary)',
+      logo_url: null,
+      display_order: 4
+    },
+    {
+      slug: 'finapick',
+      name: 'FinaPick',
+      description: 'Financial forecasting and asset valuation for the energy sector. Make data-driven investment decisions with confidence.',
+      features_json: null,
+      color: 'var(--primary)',
+      logo_url: null,
+      display_order: 5
+    }
+  ];
+  for (const item of defaultProducts) {
+    db.prepare("INSERT INTO products_items (slug, name, description, features_json, color, logo_url, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)")
+      .run(item.slug, item.name, item.description, item.features_json, item.color, item.logo_url, item.display_order);
+  }
 }
 
 export default db;

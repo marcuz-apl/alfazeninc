@@ -1,14 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
 
 export default function ProductsPage() {
-  const products = [
+  const [settings, setSettings] = useState({ 
+    title: 'Our Products', 
+    description: 'Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.' 
+  });
+  
+  const [products, setProducts] = useState<any[]>([
     {
       id: 'resologix',
+      slug: 'resologix',
       name: 'ResoLogix',
       description: 'A premium, full-range Resource Evaluation and Analytics Platform for Petroleum Resources. Engineered for E&P companies to handle the lifecycle of petroleum resources from early discovery to active production.',
       features: [
@@ -22,29 +28,53 @@ export default function ProductsPage() {
     },
     {
       id: 'elogant',
+      slug: 'elogant',
       name: 'Elogant',
       description: 'Intelligent well logging and data interpretation. Streamline operations with automated insights and highly accurate predictions.',
       color: 'var(--secondary)'
     },
     {
       id: 'diabit',
+      slug: 'diabit',
       name: 'Diabit',
       description: 'Predictive maintenance and equipment health monitoring. Prevent downtime before it happens using advanced machine learning algorithms.',
       color: 'var(--primary)'
     },
     {
       id: 'seiscul',
+      slug: 'seiscul',
       name: 'Seiscul',
       description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
       color: 'var(--secondary)'
     },
     {
       id: 'finapick',
+      slug: 'finapick',
       name: 'FinaPick',
       description: 'Financial forecasting and asset valuation for the energy sector. Make data-driven investment decisions with confidence.',
       color: 'var(--primary)'
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.settings) {
+          setSettings(data.settings);
+        }
+        if (data.items && data.items.length > 0) {
+          const parsedItems = data.items.map((item: any) => ({
+            ...item,
+            id: item.slug,
+            logoUrl: item.logo_url,
+            features: item.features_json ? JSON.parse(item.features_json) : null
+          }));
+          setProducts(parsedItems);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <main style={{ overflowX: 'hidden' }}>
@@ -58,7 +88,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             style={{ color: 'var(--text-primary)', textAlign: 'center', marginBottom: '20px' }}
           >
-            Our Products
+            {settings.title}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -66,7 +96,7 @@ export default function ProductsPage() {
             transition={{ delay: 0.1 }}
             style={{ color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '800px', margin: '0 auto 60px', fontSize: '1.2rem' }}
           >
-            Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.
+            {settings.description}
           </motion.p>
         </div>
       </section>
@@ -95,7 +125,7 @@ export default function ProductsPage() {
                 </p>
                 {product.features && (
                   <ul style={{ listStyleType: 'disc', paddingLeft: '24px', marginBottom: '32px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                    {product.features.map((feat, i) => (
+                    {product.features.map((feat: string, i: number) => (
                       <li key={i}>{feat}</li>
                     ))}
                   </ul>
