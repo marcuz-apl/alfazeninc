@@ -47,7 +47,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <main>
+    <main style={{ overflowX: 'hidden' }}>
       <Header />
       
       <section className="section" style={{ paddingTop: '120px', backgroundColor: 'var(--background)' }}>
@@ -77,14 +77,11 @@ export default function ProductsPage() {
           id={product.id} 
           className="section" 
           style={{ 
-            backgroundColor: index % 2 === 0 ? 'var(--surface)' : 'var(--background)',
-            minHeight: '60vh',
-            display: 'flex',
-            alignItems: 'center'
+            backgroundColor: index % 2 === 0 ? 'var(--surface)' : 'var(--background)'
           }}
         >
-          <div className="container">
-            <div className={index % 2 === 0 ? "products-grid" : "products-grid-reversed"}>
+          <div className="container" style={{ display: 'flex', minHeight: '50vh', alignItems: 'center' }}>
+            <div className={index % 2 === 0 ? "products-grid" : "products-grid-reversed"} style={{ width: '100%' }}>
               <motion.div
                 className="product-text"
                 initial={{ opacity: 0, x: -50 }}
