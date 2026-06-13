@@ -149,7 +149,9 @@ export default function ProductsPage() {
                 }}
               >
                 {product.logoUrl ? (
-                  <img src={product.logoUrl} alt={`${product.name} Logo`} style={{ width: '180px', height: '180px', objectFit: 'cover', borderRadius: '40px', filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.15))' }} />
+                  <div style={{ width: '280px', height: '280px', borderRadius: '60px', overflow: 'hidden', boxShadow: '0px 15px 30px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+                    <img src={product.logoUrl} alt={`${product.name} Logo`} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.35)' }} />
+                  </div>
                 ) : (
                   <div style={{ color: product.color, opacity: 0.5 }}>
                     <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
