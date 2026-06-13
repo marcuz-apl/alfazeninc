@@ -467,6 +467,12 @@ export default function Home() {
             <p>@2026 Alfazen Inc. All rights reserved. The website is made with ❤️ Gemini 3.5 Flash ❤️</p>
           </div>
           <div className="footer-right">
+            <a href="mailto:info@alfazen.org" className="footer-social-link" aria-label="Email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </a>
             <a href="https://alfazen.org" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Website">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />

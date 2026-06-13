@@ -23,7 +23,7 @@ A high-performance, professional Next.js landing page for **Alfazen Inc.** featu
    ```bash
    npm run dev
    ```
-   Open [http://localhost:4000](http://localhost:4000) to view the website.
+   Open [http://localhost:1000](http://localhost:1000) to view the website.
 
 3. **Database**
    The app auto-creates `afzinc.db` on first launch. You can inspect it with any SQLite client:
