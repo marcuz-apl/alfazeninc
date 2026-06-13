@@ -10,8 +10,15 @@ export default function ProductsPage() {
     {
       id: 'resologix',
       name: 'ResoLogix',
-      description: 'Advanced reservoir characterization and simulation powered by cutting-edge AI. Optimize extraction efficiency and minimize operational risks.',
-      color: 'var(--primary)'
+      description: 'A premium, full-range Resource Evaluation and Analytics Platform for Petroleum Resources. Engineered for E&P companies to handle the lifecycle of petroleum resources from early discovery to active production.',
+      features: [
+        'Monte Carlo Engine with up to 50k iterations',
+        'Decline Curve Analysis (DCA) for unconventional reservoirs',
+        'Deterministic Economics for on-the-fly NPV & IRR',
+        'Reporting Suite with PDF, Excel, and PowerPoint exports'
+      ],
+      color: 'var(--primary)',
+      logoUrl: '/images/products/resologix-logo-cropped.png'
     },
     {
       id: 'elogant',
@@ -85,9 +92,16 @@ export default function ProductsPage() {
                 transition={{ duration: 0.6 }}
               >
                 <h2 style={{ fontSize: '3rem', marginBottom: '24px', color: product.color }}>{product.name}</h2>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '32px' }}>
+                <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: product.features ? '16px' : '32px' }}>
                   {product.description}
                 </p>
+                {product.features && (
+                  <ul style={{ listStyleType: 'disc', paddingLeft: '24px', marginBottom: '32px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+                    {product.features.map((feat, i) => (
+                      <li key={i}>{feat}</li>
+                    ))}
+                  </ul>
+                )}
                 <button className="btn btn-lg">Learn More about {product.name}</button>
               </motion.div>
               <motion.div
@@ -98,20 +112,25 @@ export default function ProductsPage() {
                 style={{ 
                   height: '400px', 
                   borderRadius: 'var(--radius)', 
-                  background: `linear-gradient(135deg, ${product.color}20, ${product.color}10)`,
-                  border: `1px solid ${product.color}40`,
+                  background: product.logoUrl ? 'transparent' : `linear-gradient(135deg, ${product.color}20, ${product.color}10)`,
+                  border: product.logoUrl ? 'none' : `1px solid ${product.color}40`,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  overflow: 'hidden'
                 }}
               >
-                <div style={{ color: product.color, opacity: 0.5 }}>
-                  <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                    <line x1="8" y1="21" x2="16" y2="21"></line>
-                    <line x1="12" y1="17" x2="12" y2="21"></line>
-                  </svg>
-                </div>
+                {product.logoUrl ? (
+                  <img src={product.logoUrl} alt={`${product.name} Logo`} style={{ width: '180px', height: '180px', objectFit: 'cover', borderRadius: '40px', filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.15))' }} />
+                ) : (
+                  <div style={{ color: product.color, opacity: 0.5 }}>
+                    <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                  </div>
+                )}
               </motion.div>
             </div>
           </div>
