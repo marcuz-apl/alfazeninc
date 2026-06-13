@@ -84,8 +84,9 @@ export default function ProductsPage() {
           }}
         >
           <div className="container">
-            <div className="grid" style={{ alignItems: 'center' }}>
+            <div className={index % 2 === 0 ? "products-grid" : "products-grid-reversed"}>
               <motion.div
+                className="product-text"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -105,6 +106,7 @@ export default function ProductsPage() {
                 <button className="btn btn-lg">Learn More about {product.name}</button>
               </motion.div>
               <motion.div
+                className="product-image"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}

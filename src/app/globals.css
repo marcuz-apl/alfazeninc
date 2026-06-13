@@ -1190,3 +1190,25 @@ a {
   }
 }
 
+
+.products-grid, .products-grid-reversed {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+}
+@media (min-width: 992px) {
+  .products-grid {
+    grid-template-columns: 7fr 3fr;
+  }
+  .products-grid-reversed {
+    grid-template-columns: 3fr 7fr;
+  }
+  .products-grid-reversed .product-text {
+    order: 2;
+  }
+  .products-grid-reversed .product-image {
+    order: 1;
+  }
+}
+
