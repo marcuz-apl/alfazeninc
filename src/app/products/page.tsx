@@ -103,7 +103,15 @@ export default function ProductsPage() {
 
       <section className="section" style={{ backgroundColor: 'var(--background)', paddingBottom: '120px' }}>
         <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-          {products.map((product, index) => (
+          {products.map((product, index) => {
+            const statusText = product.status || 'Officially released';
+            let statusBgColor = '#22c55e'; // green default for the rest
+            if (statusText === 'Officially released') statusBgColor = '#ef4444'; // red
+            else if (statusText === 'In alfa/beta tests' || statusText === 'In developing') statusBgColor = '#f97316'; // orange
+            else if (statusText === 'Scheduled, seeking patronage') statusBgColor = '#3b82f6'; // blue
+            else if (statusText === 'Feasibility study') statusBgColor = '#000000'; // black
+
+            return (
             <div 
               key={product.id} 
               id={product.id} 
@@ -118,7 +126,12 @@ export default function ProductsPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
               >
-                <h2 style={{ fontSize: '3rem', marginBottom: '24px', color: product.color }}>{product.name}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '3rem', margin: 0, color: 'var(--text-primary)' }}>{product.name}</h2>
+                  <div style={{ padding: '6px 12px', backgroundColor: statusBgColor, color: '#ffffff', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', whiteSpace: 'nowrap' }}>
+                    {statusText}
+                  </div>
+                </div>
                 <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: product.features ? '16px' : '32px' }}>
                   {product.description}
                 </p>
@@ -164,7 +177,8 @@ export default function ProductsPage() {
               </motion.div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

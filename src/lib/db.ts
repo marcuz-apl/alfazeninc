@@ -116,6 +116,7 @@ db.exec(`
     features_json TEXT,
     color TEXT NOT NULL,
     logo_url TEXT,
+    status TEXT DEFAULT 'Officially released',
     display_order INTEGER DEFAULT 0
   );
 `);
@@ -138,6 +139,9 @@ try {
 } catch (e) {}
 try {
   db.exec("ALTER TABLE team_cards ADD COLUMN image_blur REAL DEFAULT 0.0");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE products_items ADD COLUMN status TEXT DEFAULT 'Officially released'");
 } catch (e) {}
 
 // Seed default data if empty

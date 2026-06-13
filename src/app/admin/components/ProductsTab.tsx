@@ -11,6 +11,7 @@ interface ProductItem {
   features_json: string | null;
   color: string;
   logo_url: string | null;
+  status?: string;
   display_order: number;
 }
 
@@ -128,6 +129,45 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
     }
   };
 
+  const handleMoveOrder = async (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === items.length - 1) return;
+    
+    const newItems = [...items];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    // Swap display_order
+    const tempOrder = newItems[index].display_order;
+    newItems[index].display_order = newItems[swapIndex].display_order;
+    newItems[swapIndex].display_order = tempOrder;
+    
+    // Optimistic UI update
+    const swappedItems = [...newItems];
+    const tempItem = swappedItems[index];
+    swappedItems[index] = swappedItems[swapIndex];
+    swappedItems[swapIndex] = tempItem;
+    setItems(swappedItems);
+
+    try {
+      await Promise.all([
+        fetch('/api/admin/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newItems[index])
+        }),
+        fetch('/api/admin/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newItems[swapIndex])
+        })
+      ]);
+      // Silently succeed
+    } catch (err) {
+      showNotification('Failed to update order', true);
+      fetchData(); // Revert on error
+    }
+  };
+
   const openEditor = (mode: 'add' | 'edit', item?: ProductItem) => {
     setEditorMode(mode);
     if (mode === 'edit' && item) {
@@ -148,6 +188,7 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
         features_json: null,
         color: 'var(--primary)',
         logo_url: '',
+        status: 'Officially released',
         display_order: items.length + 1
       });
       setFeaturesText('');
@@ -222,7 +263,7 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
                 <textarea className="input" rows={4} value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="Feature 1&#10;Feature 2" />
               </div>
 
-              <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
+              <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
                 <div className="form-group">
                   <label className="label">Color (CSS var or hex)</label>
                   <input type="text" className="input" value={editingCard?.color || ''} onChange={(e) => setEditingCard({ ...editingCard!, color: e.target.value })} required placeholder="var(--primary)" />
@@ -230,6 +271,20 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
                 <div className="form-group">
                   <label className="label">Logo URL</label>
                   <input type="text" className="input" value={editingCard?.logo_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, logo_url: e.target.value })} placeholder="/images/products/..." />
+                </div>
+              </div>
+
+              <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                <div className="form-group">
+                  <label className="label">Status</label>
+                  <select className="input" value={editingCard?.status || 'Officially released'} onChange={(e) => setEditingCard({ ...editingCard!, status: e.target.value })}>
+                    <option value="Officially released">Officially released</option>
+                    <option value="In alfa/beta tests">In alfa/beta tests</option>
+                    <option value="In developing">In developing</option>
+                    <option value="Scheduled, to be developed">Scheduled, to be developed</option>
+                    <option value="Scheduled, seeking patronage">Scheduled, seeking patronage</option>
+                    <option value="Feasibility study">Feasibility study</option>
+                  </select>
                 </div>
                 <div className="form-group">
                   <label className="label">Display Order</label>
@@ -255,19 +310,41 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
                   <th style={{ padding: '12px' }}>Order</th>
                   <th style={{ padding: '12px' }}>Name</th>
                   <th style={{ padding: '12px' }}>Slug</th>
-                  <th style={{ padding: '12px' }}>Color</th>
+                  <th style={{ padding: '12px' }}>Status</th>
                   <th style={{ padding: '12px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
                   <tr><td colSpan={5} style={{ padding: '12px', textAlign: 'center' }}>No products found.</td></tr>
-                ) : items.map((item) => (
+                ) : items.map((item, index) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
-                    <td style={{ padding: '12px' }}>{item.display_order}</td>
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>{item.display_order}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <button 
+                            type="button" 
+                            onClick={() => handleMoveOrder(index, 'up')}
+                            disabled={index === 0}
+                            style={{ background: 'none', border: 'none', cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.3 : 1, padding: 0, fontSize: '10px', color: 'var(--text-primary)' }}
+                          >
+                            ▲
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => handleMoveOrder(index, 'down')}
+                            disabled={index === items.length - 1}
+                            style={{ background: 'none', border: 'none', cursor: index === items.length - 1 ? 'not-allowed' : 'pointer', opacity: index === items.length - 1 ? 0.3 : 1, padding: 0, fontSize: '10px', color: 'var(--text-primary)' }}
+                          >
+                            ▼
+                          </button>
+                        </div>
+                      </div>
+                    </td>
                     <td style={{ padding: '12px' }}><strong>{item.name}</strong></td>
                     <td style={{ padding: '12px' }}>{item.slug}</td>
-                    <td style={{ padding: '12px' }}>{item.color}</td>
+                    <td style={{ padding: '12px' }}>{item.status || 'Officially released'}</td>
                     <td style={{ padding: '12px' }}>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={() => openEditor('edit', item)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '14px' }}>Edit</button>
