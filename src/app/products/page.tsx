@@ -101,17 +101,16 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {products.map((product, index) => (
-        <section 
-          key={product.id} 
-          id={product.id} 
-          className="section" 
-          style={{ 
-            backgroundColor: index % 2 === 0 ? 'var(--surface)' : 'var(--background)'
-          }}
-        >
-          <div className="container" style={{ display: 'flex', minHeight: '50vh', alignItems: 'center' }}>
-            <div className={index % 2 === 0 ? "products-grid" : "products-grid-reversed"} style={{ width: '100%' }}>
+      <section className="section" style={{ backgroundColor: 'var(--background)', paddingBottom: '120px' }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          {products.map((product, index) => (
+            <div 
+              key={product.id} 
+              id={product.id} 
+              className="card"
+              style={{ padding: '60px' }}
+            >
+              <div className={index % 2 === 0 ? "products-grid" : "products-grid-reversed"} style={{ width: '100%', alignItems: 'center' }}>
               <motion.div
                 className="product-text"
                 initial={{ opacity: 0, x: -50 }}
@@ -161,10 +160,11 @@ export default function ProductsPage() {
                   </div>
                 )}
               </motion.div>
+              </div>
             </div>
-          </div>
-        </section>
-      ))}
+          ))}
+        </div>
+      </section>
 
       <Footer />
     </main>
