@@ -136,3 +136,7 @@ scripts/
 ## Architecture Guidelines
 
 See [AGENTS.md](./AGENTS.md) for contribution rules and AI-agent guidelines.
+
+## License
+
+Apache 2.0
