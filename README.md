@@ -39,6 +39,7 @@ A high-performance, professional Next.js landing page for **Alfazen Inc.** featu
 - **Services Section** — dynamic card grid with images, managed from the CMS.
 - **Gallery Section** — image carousel with configurable sliding effect (slide / fade) and autoplay speed.
 - **Team Section** — circular avatar cards with advanced image cropping (zoom, pan, blur).
+- **Products Section** — comprehensive product showcase featuring dynamically generated vector logos, custom color themes, and automatic status badges with theme-aware typography.
 - **Articles Section** — blog-style posts with author and date fields.
 - **Contact Form** — submissions stored in the `messages` table via `/api/contact`.
 - **Framer Motion Animations** — smooth fade-ins and scroll-based reveals throughout.
@@ -54,6 +55,7 @@ A full-featured CMS dashboard for managing the entire website. Protected by sess
 | **Services** | Edit section title; add, edit, reorder, delete service cards |
 | **Gallery** | Configure sliding effect & speed; add, edit, delete slides |
 | **Team** | Add/delete team cards; advanced image adjustment (zoom, pan, blur) |
+| **Products** | Manage product catalog; dynamic status assignment (color-coded automatically), inline order adjustment with up/down arrows |
 | **Articles** | Full article CRUD with author, date, and image fields |
 | **Media** | Unified media library — upload, drag-and-drop, download from URL, delete assets, sync external images to local storage |
 
@@ -74,6 +76,8 @@ The **Media** tab provides a centralized asset manager across all website sectio
 src/
 ├── app/
 │   ├── page.tsx              # Public landing page
+│   ├── products/
+│   │   └── page.tsx          # Public products showcase page
 │   ├── layout.tsx            # Root layout with metadata
 │   ├── globals.css           # Design system (CSS variables, components)
 │   ├── admin/
@@ -95,6 +99,7 @@ src/
 │           │   ├── team/
 │           │   ├── articles/
 │           │   └── download-images/  # Bulk external→local sync
+│           ├── products/     # Products CRUD endpoints
 │           └── media/
 │               ├── route.ts  # List & delete media assets
 │               ├── upload/   # File upload endpoint
@@ -107,6 +112,7 @@ public/
 │   ├── services/             # Service card images
 │   ├── gallery/              # Gallery slide images
 │   ├── team/                 # Team avatar images
+│   ├── products/             # Product logo images
 │   └── articles/             # Article cover images
 scripts/
 └── download-images.js        # CLI script for initial asset migration
@@ -124,6 +130,7 @@ scripts/
 | `gallery_settings` | Carousel effect and autoplay speed |
 | `gallery_items` | Individual gallery slides |
 | `team_cards` | Team member cards (with image transform data) |
+| `products_items` | Product catalog with descriptions, features, and dynamic statuses |
 | `article_posts` | Blog articles with author and date |
 
 ## Architecture Guidelines
