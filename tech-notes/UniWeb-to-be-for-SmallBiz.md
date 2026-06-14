@@ -30,6 +30,10 @@ However, to market this as a *Universal* Small Business Template, there are a fe
 - **Current State:** Added a dedicated "System" tab to the CMS to monitor live CPU loads, memory utilization, and OS/Node environments.
 - **Universal Impact:** Gives business owners and developers immediate visibility into their server capacity and host health directly from the dashboard.
 
+### 7. Lead Generation & Audience Building (✅ Completed)
+- **Current State:** Implemented a Newsletter/Lead capture widget in the footer. Built a CRM-ready workflow where direct messages and newsletter subscribers can be instantly exported to CSV from the Admin Dashboard. Added native `mailto:` replies for instant communication.
+- **Universal Impact:** Allows the template to serve as a high-conversion lead generation tool without forcing the business into complex 3rd-party API lock-ins.
+
 ---
 
 ### The Verdict

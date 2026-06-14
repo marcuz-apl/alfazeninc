@@ -45,6 +45,7 @@ export default function AdminPage() {
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'inquiries' | 'landing-page' | 'pages' | 'products' | 'media' | 'system'>('settings');
   const [inquiriesTab, setInquiriesTab] = useState<'messages' | 'subscribers'>('messages');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [landingPageTab, setLandingPageTab] = useState<'layout' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('layout');
   const [settingsTab, setSettingsTab] = useState<'general' | 'seo' | 'security'>('general');
 
@@ -103,8 +104,23 @@ export default function AdminPage() {
 
   // Initialize
   useEffect(() => {
+    const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark';
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
     fetchData();
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('admin_theme', newTheme);
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -678,6 +694,25 @@ export default function AdminPage() {
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <button onClick={handleLogout} className="btn btn-secondary">
                   Logout
+                </button>
+                <button onClick={toggleTheme} className="btn btn-secondary" style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Toggle Theme">
+                  {theme === 'light' ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                  )}
                 </button>
               </div>
             </header>
