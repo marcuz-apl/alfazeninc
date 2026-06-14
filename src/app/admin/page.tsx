@@ -761,7 +761,7 @@ export default function AdminPage() {
                         style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                       />
                       <label htmlFor="show_contact_us" className="label" style={{ margin: 0, cursor: 'pointer' }}>
-                        Display "Contact Us" CTA Button
+                        Display "Partner with Us" CTA Button
                       </label>
                     </div>
 
@@ -992,7 +992,7 @@ export default function AdminPage() {
                         <button 
                           onClick={() => {
                             setEditorMode('add');
-                            setEditingCard({ image_url: '', image_alt: '', display_order: content.gallery.length + 1 });
+                            setEditingCard({ image_url: '', image_alt: '', display_order: content.gallery.length + 1, category: 'all' });
                           }}
                           className="btn"
                         >
@@ -1006,6 +1006,9 @@ export default function AdminPage() {
                             <img src={item.image_url} alt={item.image_alt} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
                             <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                               <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', flex: 1 }}>{item.image_alt}</p>
+                              <span style={{ display: 'inline-block', padding: '2px 8px', backgroundColor: 'var(--primary)', color: 'white', fontSize: '11px', borderRadius: '4px', marginTop: '8px', alignSelf: 'flex-start' }}>
+                                {item.category || 'all'}
+                              </span>
                               <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                                 <button 
                                   onClick={() => {
@@ -1054,6 +1057,17 @@ export default function AdminPage() {
                             className="input" 
                             value={editingCard.image_alt} 
                             onChange={(e) => setEditingCard({ ...editingCard, image_alt: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginTop: '16px' }}>
+                          <label className="label">Category</label>
+                          <input 
+                            type="text" 
+                            className="input" 
+                            value={editingCard.category || 'all'} 
+                            onChange={(e) => setEditingCard({ ...editingCard, category: e.target.value })}
+                            placeholder="e.g., oil-pumps, ai-power"
                             required
                           />
                         </div>

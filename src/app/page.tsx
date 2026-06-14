@@ -44,18 +44,57 @@ export default function Home() {
     sliding_effect: "slide",
     autoplay_speed: 5000
   });
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [galleryItems, setGalleryItems] = useState<any[]>([
     {
       image_url: 'https://images.unsplash.com/photo-1695060601967-7fb135446f67?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxMXx8b2lsJTIwYW5kJTIwZ2FzJTIwaW5kdXN0cnklMjBkYXRhJTIwc2NpZW5jZSUyMEFJfGVufDB8MHx8fDE3NjM0MDE3NjF8MA&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-      image_alt: 'A group of oil pumps sitting next to each other'
+      image_alt: 'A group of oil pumps sitting next to each other',
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1729201754182-536252085563?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw2fHxvaWwlMjBhbmYlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-      image_alt: 'A black and white photo of an oil pump'
+      image_alt: 'A black and white photo of an oil pump',
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw1fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
-      image_alt: 'Oil field operations during sunset'
+      image_alt: 'Oil field operations during sunset',
+      category: 'oil-pumps'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1694039446022-2d227e8b104b?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxfHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'Oil pumpjack working in remote landscape',
+      category: 'oil-pumps'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1596017264419-23e7af0e86db?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw4fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'Sunset over industrial infrastructure',
+      category: 'oil-pumps'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1562237548-2e0fd9797537?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw4fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
+      image_alt: 'Active ERIELL drilling rig',
+      category: 'oil-pumps'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'AI Neural Network concept',
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Artificial Intelligence brain',
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Machine Learning code',
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Cybersecurity and Tech setup',
+      category: 'ai-power'
     }
   ]);
   
@@ -148,7 +187,7 @@ export default function Home() {
           {hero.show_contact_us === 1 && (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <a href="#contact-us" className="btn btn-lg">
-                Contact Us
+                Partner with Us
               </a>
             </motion.div>
           )}
@@ -200,8 +239,29 @@ export default function Home() {
           >
             Gallery
           </motion.h2>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '32px' }}>
+            <button 
+              onClick={() => setActiveCategory('all')}
+              className={`btn ${activeCategory === 'all' ? '' : 'btn-secondary'}`}
+            >
+              All
+            </button>
+            <button 
+              onClick={() => setActiveCategory('oil-pumps')}
+              className={`btn ${activeCategory === 'oil-pumps' ? '' : 'btn-secondary'}`}
+            >
+              Oil Pumps
+            </button>
+            <button 
+              onClick={() => setActiveCategory('ai-power')}
+              className={`btn ${activeCategory === 'ai-power' ? '' : 'btn-secondary'}`}
+            >
+              AI Power
+            </button>
+          </div>
+
           <GalleryCarousel 
-            images={galleryItems.map(item => ({ src: item.image_url, alt: item.image_alt }))}
+            images={galleryItems.filter(item => activeCategory === 'all' || item.category === activeCategory).map(item => ({ src: item.image_url, alt: item.image_alt }))}
             slidingEffect={gallerySettings.sliding_effect as 'slide' | 'fade'}
             autoplaySpeed={gallerySettings.autoplay_speed}
           />

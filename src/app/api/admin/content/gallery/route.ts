@@ -33,16 +33,16 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if updating an individual slide
-    const { id, image_url, image_alt, display_order } = data;
+    const { id, image_url, image_alt, display_order, category } = data;
     if (!id || !image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required slide fields' }, { status: 400 });
     }
 
     db.prepare(`
       UPDATE gallery_items 
-      SET image_url = ?, image_alt = ?, display_order = ?
+      SET image_url = ?, image_alt = ?, display_order = ?, category = ?
       WHERE id = ?
-    `).run(image_url, image_alt, display_order || 0, id);
+    `).run(image_url, image_alt, display_order || 0, category || 'all', id);
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -61,15 +61,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { image_url, image_alt, display_order } = await request.json();
+    const { image_url, image_alt, display_order, category } = await request.json();
     if (!image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const result = db.prepare(`
-      INSERT INTO gallery_items (image_url, image_alt, display_order)
-      VALUES (?, ?, ?)
-    `).run(image_url, image_alt, display_order || 0);
+      INSERT INTO gallery_items (image_url, image_alt, display_order, category)
+      VALUES (?, ?, ?, ?)
+    `).run(image_url, image_alt, display_order || 0, category || 'all');
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {

@@ -79,7 +79,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     image_url TEXT NOT NULL,
     image_alt TEXT NOT NULL,
-    display_order INTEGER DEFAULT 0
+    display_order INTEGER DEFAULT 0,
+    category TEXT DEFAULT 'all'
   );
 
   CREATE TABLE IF NOT EXISTS team_cards (
@@ -143,6 +144,9 @@ try {
 try {
   db.exec("ALTER TABLE products_items ADD COLUMN status TEXT DEFAULT 'Officially released'");
 } catch (e) {}
+try {
+  db.exec("ALTER TABLE gallery_items ADD COLUMN category TEXT DEFAULT 'all'");
+} catch (e) {}
 
 // Seed default data if empty
 const hasHero = db.prepare("SELECT count(*) as count FROM hero_settings").get() as { count: number };
@@ -202,37 +206,67 @@ if (hasGallery.count === 0) {
     {
       image_url: 'https://images.unsplash.com/photo-1695060601967-7fb135446f67?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxMXx8b2lsJTIwYW5kJTIwZ2FzJTIwaW5kdXN0cnklMjBkYXRhJTIwc2NpZW5jZSUyMEFJfGVufDB8MHx8fDE3NjM0MDE3NjF8MA&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'A group of oil pumps sitting next to each other',
-      display_order: 1
+      display_order: 1,
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1729201754182-536252085563?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw2fHxvaWwlMjBhbmYlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'A black and white photo of an oil pump',
-      display_order: 2
+      display_order: 2,
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1646800864458-c4ea73403075?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw1fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'Oil field operations during sunset',
-      display_order: 3
+      display_order: 3,
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1694039446022-2d227e8b104b?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHwxfHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'Oil pumpjack working in remote landscape',
-      display_order: 4
+      display_order: 4,
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1596017264419-23e7af0e86db?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw4fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'Sunset over industrial infrastructure',
-      display_order: 5
+      display_order: 5,
+      category: 'oil-pumps'
     },
     {
       image_url: 'https://images.unsplash.com/photo-1562237548-2e0fd9797537?crop=entropy&ixid=M3w0OTUyODh8MHwxfHNlYXJjaHw4fHxvaWwlMjBhbmQlMjBnYXMlMjBpbmR1c3RyeSUyMGRhdGElMjBzY2llbmNlJTIwQUl8ZW58MHwwfHx8MTc2MzQwMTc2MXww&ixlib=rb-4.1.0&w=1400&q=80&auto=format&fit=crop',
       image_alt: 'Active ERIELL drilling rig',
-      display_order: 6
+      display_order: 6,
+      category: 'oil-pumps'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'AI Neural Network concept',
+      display_order: 7,
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Artificial Intelligence brain',
+      display_order: 8,
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Machine Learning code',
+      display_order: 9,
+      category: 'ai-power'
+    },
+    {
+      image_url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1400&auto=format&fit=crop',
+      image_alt: 'Cybersecurity and Tech setup',
+      display_order: 10,
+      category: 'ai-power'
     }
   ];
   for (const item of defaultGallery) {
-    db.prepare("INSERT INTO gallery_items (image_url, image_alt, display_order) VALUES (?, ?, ?)")
-      .run(item.image_url, item.image_alt, item.display_order);
+    db.prepare("INSERT INTO gallery_items (image_url, image_alt, display_order, category) VALUES (?, ?, ?, ?)")
+      .run(item.image_url, item.image_alt, item.display_order, item.category);
   }
 }
 
