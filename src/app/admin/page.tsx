@@ -704,7 +704,7 @@ export default function AdminPage() {
                     marginLeft: tab === 'system' ? 'auto' : '0'
                   }}
                 >
-                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab.replace('-', ' ')}
+                  {tab === 'inquiries' ? `Inbox (${messages.length + subscribers.length})` : tab.replace('-', ' ')}
                 </button>
               ))}
             </div>
@@ -742,7 +742,19 @@ export default function AdminPage() {
                       </div>
 
                   <div className="card admin-table-card">
-                    <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Inbox Submissions</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <h2 style={{ fontSize: '20px', margin: 0 }}>Inbox Submissions</h2>
+                      {messages.length > 0 && (
+                        <a 
+                          href="/api/admin/messages/export" 
+                          download="direct_messages.csv"
+                          className="btn"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          Export to CSV
+                        </a>
+                      )}
+                    </div>
                     {messages.length === 0 ? (
                       <div className="admin-empty-state"><p>No messages received yet.</p></div>
                     ) : (
@@ -765,7 +777,11 @@ export default function AdminPage() {
                                 </td>
                                 <td style={{ padding: '12px' }}><strong>{msg.name}</strong></td>
                                 <td style={{ padding: '12px' }}>
-                                  <div>{msg.email}</div>
+                                  <div>
+                                    <a href={`mailto:${msg.email}`} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+                                      {msg.email}
+                                    </a>
+                                  </div>
                                   {msg.phone && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{msg.phone}</div>}
                                 </td>
                                 <td style={{ padding: '12px', maxWidth: '400px' }}>{msg.message}</td>
@@ -786,7 +802,19 @@ export default function AdminPage() {
 
                   {inquiriesTab === 'subscribers' && (
                     <div className="card admin-table-card">
-                      <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Newsletter Subscribers</h2>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h2 style={{ fontSize: '20px', margin: 0 }}>Newsletter Subscribers</h2>
+                        {subscribers.length > 0 && (
+                          <a 
+                            href="/api/admin/subscribers/export" 
+                            download="subscribers.csv"
+                            className="btn"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            Export to CSV
+                          </a>
+                        )}
+                      </div>
                       {subscribers.length === 0 ? (
                         <div className="admin-empty-state"><p>No subscribers yet.</p></div>
                       ) : (
