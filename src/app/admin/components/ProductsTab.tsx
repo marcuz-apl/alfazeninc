@@ -14,6 +14,8 @@ interface ProductItem {
   status?: string;
   display_order: number;
   external_url?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
 }
 
 interface ProductsTabProps {
@@ -191,7 +193,9 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
         logo_url: '',
         status: 'Officially released',
         display_order: items.length + 1,
-        external_url: ''
+        external_url: '',
+        meta_title: '',
+        meta_description: ''
       });
       setFeaturesText('');
     }
@@ -306,6 +310,18 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
               <div className="form-group" style={{ marginTop: '16px' }}>
                 <label className="label">External URL (For Released Products)</label>
                 <input type="text" className="input" value={editingCard?.external_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, external_url: e.target.value })} placeholder="https://..." />
+              </div>
+
+              <div style={{ marginTop: '24px', padding: '16px', border: '1px solid var(--surface-border)', borderRadius: '8px' }}>
+                <h4 style={{ marginBottom: '12px' }}>Advanced SEO (Optional)</h4>
+                <div className="form-group">
+                  <label className="label">Meta Title Override</label>
+                  <input type="text" className="input" value={editingCard?.meta_title || ''} onChange={(e) => setEditingCard({ ...editingCard!, meta_title: e.target.value })} placeholder="Leave blank to use default" />
+                </div>
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="label">Meta Description Override</label>
+                  <textarea className="input" rows={2} value={editingCard?.meta_description || ''} onChange={(e) => setEditingCard({ ...editingCard!, meta_description: e.target.value })} placeholder="Leave blank to use default" />
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>

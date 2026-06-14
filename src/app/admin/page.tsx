@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MediaTab from './components/MediaTab';
 import ProductsTab from './components/ProductsTab';
+import SEOTab from './components/SEOTab';
 
 interface Message {
   id: number;
@@ -29,6 +30,8 @@ interface Article {
   author: string;
   published_date: string;
   display_order: number;
+  meta_title?: string | null;
+  meta_description?: string | null;
 }
 
 export default function AdminPage() {
@@ -36,7 +39,7 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles' | 'media' | 'products'>('inquiries');
+  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles' | 'media' | 'products' | 'seo'>('inquiries');
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -639,7 +642,7 @@ export default function AdminPage() {
 
             {/* Dashboard Tabs Navigation */}
             <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
-              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles', 'media', 'products'] as const).map((tab) => (
+              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles', 'media', 'products', 'seo'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -1335,7 +1338,9 @@ export default function AdminPage() {
                               image_alt: '',
                               author: '',
                               published_date: new Date().toISOString().split('T')[0],
-                              display_order: content.articles.length + 1
+                              display_order: content.articles.length + 1,
+                              meta_title: '',
+                              meta_description: ''
                             });
                           }}
                           className="btn"
@@ -1518,6 +1523,18 @@ export default function AdminPage() {
                           />
                         </div>
 
+                        <div style={{ marginTop: '24px', padding: '16px', border: '1px solid var(--surface-border)', borderRadius: '8px' }}>
+                          <h4 style={{ marginBottom: '12px' }}>Advanced SEO (Optional)</h4>
+                          <div className="form-group">
+                            <label className="label">Meta Title Override</label>
+                            <input type="text" className="input" value={editingCard.meta_title || ''} onChange={(e) => setEditingCard({ ...editingCard, meta_title: e.target.value })} placeholder="Leave blank to use default" />
+                          </div>
+                          <div className="form-group" style={{ marginTop: '12px' }}>
+                            <label className="label">Meta Description Override</label>
+                            <textarea className="input" rows={2} value={editingCard.meta_description || ''} onChange={(e) => setEditingCard({ ...editingCard, meta_description: e.target.value })} placeholder="Leave blank to use default" />
+                          </div>
+                        </div>
+
                         <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                           <button type="submit" disabled={saveLoading} className="btn">
                             {saveLoading ? 'Saving...' : 'Save Article'}
@@ -1533,6 +1550,9 @@ export default function AdminPage() {
               )}
 {activeTab === 'products' && (
   <ProductsTab showNotification={showNotification} />
+)}
+{activeTab === 'seo' && (
+  <SEOTab showNotification={showNotification} />
 )}
 {activeTab === 'media' && (
   <MediaTab onSyncImages={handleSyncImages} syncLoading={saveLoading} />

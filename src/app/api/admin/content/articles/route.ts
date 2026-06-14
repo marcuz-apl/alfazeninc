@@ -23,7 +23,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const { id, title, content, image_url, image_alt, author, published_date, display_order } = await request.json();
+    const { id, title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description } = await request.json();
     if (!id || !title || !content || !image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required post fields' }, { status: 400 });
     }
@@ -33,9 +33,9 @@ export async function PUT(request: NextRequest) {
 
     db.prepare(`
       UPDATE article_posts 
-      SET title = ?, content = ?, image_url = ?, image_alt = ?, author = ?, published_date = ?, display_order = ?
+      SET title = ?, content = ?, image_url = ?, image_alt = ?, author = ?, published_date = ?, display_order = ?, meta_title = ?, meta_description = ?
       WHERE id = ?
-    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, id);
+    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null, id);
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { title, content, image_url, image_alt, author, published_date, display_order } = await request.json();
+    const { title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description } = await request.json();
     if (!title || !content || !image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -63,9 +63,9 @@ export async function POST(request: NextRequest) {
     const dbContent = typeof content === 'string' ? content : JSON.stringify(content);
 
     const result = db.prepare(`
-      INSERT INTO article_posts (title, content, image_url, image_alt, author, published_date, display_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0);
+      INSERT INTO article_posts (title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null);
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {

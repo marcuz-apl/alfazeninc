@@ -100,7 +100,9 @@ db.exec(`
     image_alt TEXT NOT NULL,
     author TEXT,
     published_date TEXT,
-    display_order INTEGER DEFAULT 0
+    display_order INTEGER DEFAULT 0,
+    meta_title TEXT,
+    meta_description TEXT
   );
 
   CREATE TABLE IF NOT EXISTS products_settings (
@@ -120,7 +122,23 @@ db.exec(`
     logo_url TEXT,
     status TEXT DEFAULT 'Officially released',
     display_order INTEGER DEFAULT 0,
-    external_url TEXT
+    external_url TEXT,
+    meta_title TEXT,
+    meta_description TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS global_seo (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    global_title TEXT NOT NULL,
+    global_description TEXT NOT NULL,
+    og_image_url TEXT,
+    twitter_handle TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS page_seo (
+    page_slug TEXT PRIMARY KEY,
+    meta_title TEXT,
+    meta_description TEXT
   );
 `);
 
@@ -154,6 +172,18 @@ try {
 } catch (e) {}
 try {
   db.exec("ALTER TABLE products_items ADD COLUMN external_url TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE products_items ADD COLUMN meta_title TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE products_items ADD COLUMN meta_description TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE article_posts ADD COLUMN meta_title TEXT");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE article_posts ADD COLUMN meta_description TEXT");
 } catch (e) {}
 
 // Seed default data if empty
@@ -409,6 +439,25 @@ if (hasProducts.count === 0) {
       item.external_url || null
     );
   }
+}
+
+const hasGlobalSeo = db.prepare("SELECT count(*) as count FROM global_seo").get() as { count: number };
+if (hasGlobalSeo.count === 0) {
+  db.prepare("INSERT INTO global_seo (id, global_title, global_description, og_image_url, twitter_handle) VALUES (1, ?, ?, ?, ?)").run(
+    "Global AI Solutions for Oil & Gas - Alfazen Inc.",
+    "With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry.",
+    "/images/hero/hero_bg.jpg",
+    "@alfazeninc"
+  );
+}
+
+const hasPageSeo = db.prepare("SELECT count(*) as count FROM page_seo").get() as { count: number };
+if (hasPageSeo.count === 0) {
+  const insertPageSeo = db.prepare("INSERT INTO page_seo (page_slug, meta_title, meta_description) VALUES (?, ?, ?)");
+  insertPageSeo.run('home', null, null);
+  insertPageSeo.run('products', 'Our Products - Alfazen Inc.', 'Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.');
+  insertPageSeo.run('articles', 'Tech Notes & Articles - Alfazen Inc.', 'Read our latest tech notes and articles on data science and the oil & gas industry.');
+  insertPageSeo.run('gallery', 'Gallery - Alfazen Inc.', 'View our gallery of AI-powered solutions and oil pumps.');
 }
 
 export default db;
