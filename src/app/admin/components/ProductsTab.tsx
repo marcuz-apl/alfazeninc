@@ -308,8 +308,11 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
-                <label className="label">External URL (For Released Products)</label>
-                <input type="text" className="input" value={editingCard?.external_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, external_url: e.target.value })} placeholder="https://..." />
+                <label className="label">Checkout / Booking URL (Optional)</label>
+                <input type="url" className="input" value={editingCard?.external_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, external_url: e.target.value })} placeholder="https://..." />
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Drop a Stripe Payment Link, Shopify URL, or Calendly link here to enable an instant "Buy Now" or "Book" button on this product's page.
+                </p>
               </div>
 
               <div style={{ marginTop: '24px', padding: '16px', border: '1px solid var(--surface-border)', borderRadius: '8px' }}>
