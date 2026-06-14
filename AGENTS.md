@@ -12,7 +12,7 @@ This project is a Next.js (App Router) based clone of the Alfazen Inc. website w
 - **Framework:** Next.js (App Router)
 - **Styling:** Vanilla CSS (`globals.css`) for maximum flexibility, specifically utilizing CSS Variables for theming. Do NOT install or use Tailwind CSS.
 - **Animations:** `framer-motion` is used for sleek, professional animations.
-- **Database:** `better-sqlite3` connecting to a local `afzinc.db` file.
+- **Database:** `better-sqlite3` connecting to a local `smb4all.db` file.
 - **Media Storage:** All assets are stored locally in `public/images/<section>/` subfolders (hero, services, gallery, team, articles).
 
 ## Development Rules
@@ -30,3 +30,5 @@ This project is a Next.js (App Router) based clone of the Alfazen Inc. website w
 6. **Media Management:** All website images should be stored locally in `public/images/<section>/`. The Media tab and `/api/admin/media/` endpoints handle upload, download-from-URL, listing, and safe deletion (assets in use cannot be deleted). The "Sync External Images" feature bulk-downloads external URLs to local storage.
 
 7. **Authentication:** The admin panel uses a session cookie (`admin_session`) validated against `SESSION_SECRET` (env var). Password change is enforced on first login. Always check authentication in admin API routes using the established pattern.
+
+8. **Documentation:** Whenever an Implementation Plan is created and approved, always save a copy of it into the `./building-blocks/` directory with a sequential number prefix (e.g., `./building-blocks/04_Feature-Name-Implementation-Plan.md`) for historical tracking.

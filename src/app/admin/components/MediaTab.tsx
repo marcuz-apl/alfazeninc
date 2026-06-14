@@ -3,15 +3,16 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SECTIONS = ['hero', 'services', 'gallery', 'team', 'articles'] as const;
+const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'] as const;
 type Section = (typeof SECTIONS)[number];
 
 const SECTION_ICONS: Record<Section, string> = {
-  hero: '🏠',
-  services: '⚙️',
-  gallery: '🖼️',
+  brand: '⭐',
+  hero: '🖼️',
+  services: '✨',
+  gallery: '📸',
   team: '👥',
-  articles: '📰',
+  articles: '📝'
 };
 
 function formatFileSize(bytes: number): string {
@@ -33,9 +34,7 @@ interface MediaTabProps {
 
 export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
   /* ─── state ─── */
-  const [files, setFiles] = useState<Record<Section, string[]>>({
-    hero: [], services: [], gallery: [], team: [], articles: [],
-  });
+  const [files, setFiles] = useState<Record<Section, string[]>>({ brand: [], hero: [], services: [], gallery: [], team: [], articles: [] });
   const [selectedSection, setSelectedSection] = useState<Section>('hero');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);

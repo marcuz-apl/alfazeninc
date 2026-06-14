@@ -874,11 +874,13 @@ a {
 }
 
 .admin-dashboard-title {
-  font-size: 30px;
+  font-size: clamp(18px, 2vw, 30px);
   font-weight: 700;
   color: var(--foreground);
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.1;
+  word-break: break-word;
+  max-width: 300px;
 }
 
 .admin-dashboard-subtitle {

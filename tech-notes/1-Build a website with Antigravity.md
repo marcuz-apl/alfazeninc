@@ -48,7 +48,7 @@ While Python and Flet are fantastic—especially for quickly throwing together i
 
 1- SEO (Search Engine Optimization): Flet uses Flutter under the hood, which renders the web page onto a <canvas> rather than using standard HTML DOM elements (<h1>, <p>, etc.). This means search engine crawlers struggle to read and rank your site's content. Next.js gives us perfect, server-rendered semantic HTML, so Alfazen ranks higher on Google.
 2- Sleek Animations & Aesthetics: You requested a "sleek look with some animation." The web ecosystem has incredible libraries like Framer Motion (which I just integrated) that provide buttery smooth, professional-grade animations. Achieving that same level of bespoke, custom web styling and animation in Flet is currently very difficult.
-3- Full-Stack Simplicity: Next.js isn't just a frontend framework; it has built-in API routes (which I used to create your afzinc.db SQLite endpoints). This means you get a frontend and a backend in one unified codebase, making future maintenance a breeze for any standard web developer (or AI agent!).
+3- Full-Stack Simplicity: Next.js isn't just a frontend framework; it has built-in API routes (which I used to create your smb4all.db SQLite endpoints). This means you get a frontend and a backend in one unified codebase, making future maintenance a breeze for any standard web developer (or AI agent!).
 ```
 
 Then marcuz-apl runs up the website at http://localhost:4000 and it too simple.

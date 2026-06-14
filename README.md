@@ -7,10 +7,19 @@ A high-performance, professional Next.js landing page for **Alfazen Inc.** featu
 | Layer | Technology |
 |---|---|
 | **Framework** | Next.js (App Router) |
-| **Styling** | Vanilla CSS with CSS Variables — no Tailwind |
+| **Styling** | Vanilla CSS (`globals.css`) with CSS Variables for theming |
 | **Animations** | Framer Motion |
-| **Database** | SQLite (`better-sqlite3`) — local file `afzinc.db` |
+| **Database** | SQLite (`better-sqlite3`) — local file `smb4all.db` |
 | **Auth** | Session cookie + password hashing (admin panel) |
+
+### CMS Details
+All website content is dynamically driven by the database (`smb4all.db`). The Admin Panel includes sections for:
+- **Pages:** Create dynamic subpages (`/pages/[slug]`).
+- **Landing Page:** Toggle/reorder sections (Hero, Services, Gallery, Team, Articles).
+- **Products:** Manage digital catalog.
+- **Media:** Unified local asset library.
+- **Settings:** Adjust Global SEO metadata and update password.
+- **Inbox:** View contact form inquiries.
 
 ## Setup Instructions
 
@@ -25,10 +34,12 @@ A high-performance, professional Next.js landing page for **Alfazen Inc.** featu
    ```
    Open [http://localhost:1000](http://localhost:1000) to view the website.
 
-3. **Database**
-   The app auto-creates `afzinc.db` on first launch. You can inspect it with any SQLite client:
+3. **Database Management**
+
+   1. **Auto-Initialization:** 
+   The app auto-creates `smb4all.db` on first launch. You can inspect it with any SQLite client:
    ```bash
-   sqlite3 afzinc.db ".tables"
+   sqlite3 smb4all.db ".tables"
    ```
 
 ## Key Features

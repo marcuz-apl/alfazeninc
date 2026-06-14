@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from './ThemeToggle';
 import Link from 'next/link';
@@ -9,7 +9,21 @@ import { usePathname } from 'next/navigation';
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+  const [settings, setSettings] = useState({
+    site_name: 'Alfazen Inc.',
+    site_slogan: 'Stay Zen at First Place',
+    site_logo_url: '/images/brand/logo.png'
+  });
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch('/api/settings/general')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setSettings(data);
+      })
+      .catch(console.error);
+  }, []);
 
   const navLinks = ['Services', 'Gallery', 'Team', 'Article', 'Contact Us'];
   const productLinks = [
@@ -42,8 +56,8 @@ export default function Header() {
           onClick={handleBrandClick}
         >
           <img 
-            src="/logo.png" 
-            alt="Alfazen Logo" 
+            src={settings.site_logo_url || "/images/brand/logo.png"} 
+            alt={`${settings.site_name} Logo`} 
             style={{ 
               width: '40px', 
               height: '40px', 
@@ -55,8 +69,8 @@ export default function Header() {
             }} 
           />
           <div className="brand-group">
-            <div className="brand-title">Alfazen Inc.</div>
-            <div className="brand-slogan">Stay Zen at First Place</div>
+            <div className="brand-title">{settings.site_name}</div>
+            <div className="brand-slogan">{settings.site_slogan}</div>
           </div>
         </Link>
         <nav className="nav-links">

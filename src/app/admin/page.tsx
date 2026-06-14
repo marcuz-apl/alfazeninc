@@ -7,6 +7,8 @@ import ProductsTab from './components/ProductsTab';
 import SEOTab from './components/SEOTab';
 import PagesTab from './components/PagesTab';
 import LayoutTab from './components/LayoutTab';
+import GeneralSettingsTab from './components/GeneralSettingsTab';
+import SystemTab from './components/SystemTab';
 
 interface Message {
   id: number;
@@ -41,8 +43,24 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inquiries' | 'landing-page' | 'media' | 'products' | 'seo' | 'pages'>('inquiries');
+  const [activeTab, setActiveTab] = useState<'settings' | 'inquiries' | 'landing-page' | 'pages' | 'products' | 'media' | 'system'>('settings');
   const [landingPageTab, setLandingPageTab] = useState<'layout' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('layout');
+  const [settingsTab, setSettingsTab] = useState<'general' | 'seo' | 'security'>('general');
+
+  const [adminBrand, setAdminBrand] = useState({
+    site_name: 'Alfazen Inc.',
+    site_slogan: 'Stay Zen at First Place',
+    site_logo_url: '/images/brand/logo.png'
+  });
+
+  useEffect(() => {
+    fetch('/api/settings/general')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setAdminBrand(s => ({ ...s, ...data }));
+      })
+      .catch(console.error);
+  }, []);
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -608,15 +626,15 @@ export default function AdminPage() {
         ) : (
           <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-dashboard-wrapper">
             {/* Dashboard Header */}
-            <header className="admin-header">
+            <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <a 
                 href="/" 
                 className="brand-group-wrapper" 
                 style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none', color: 'inherit' }}
               >
                 <img 
-                  src="/logo.png" 
-                  alt="Alfazen Logo" 
+                  src={adminBrand.site_logo_url || "/images/brand/logo.png"} 
+                  alt={`${adminBrand.site_name} Logo`} 
                   style={{ 
                     width: '46px', 
                     height: '46px', 
@@ -628,15 +646,18 @@ export default function AdminPage() {
                   }} 
                 />
                 <div className="brand-group">
-                  <h1 className="admin-dashboard-title">Alfazen Inc.</h1>
-                  <span className="brand-slogan" style={{ fontSize: '12px' }}>Stay Zen at First Place</span>
-                  <p className="admin-dashboard-subtitle" style={{ marginTop: '4px' }}>Content Management System Dashboard</p>
+                  <h1 className="admin-dashboard-title">{adminBrand.site_name}</h1>
+                  <span className="brand-slogan" style={{ fontSize: '12px' }}>{adminBrand.site_slogan}</span>
                 </div>
               </a>
+              
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <p className="admin-dashboard-subtitle" style={{ margin: 0, fontWeight: 600, fontSize: '26px', color: 'var(--primary)' }}>
+                  Content Management System Dashboard
+                </p>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <button onClick={() => setIsChangePasswordModalOpen(true)} className="btn btn-secondary">
-                  Change Password
-                </button>
                 <button onClick={handleLogout} className="btn btn-secondary">
                   Logout
                 </button>
@@ -645,7 +666,7 @@ export default function AdminPage() {
 
             {/* Dashboard Tabs Navigation */}
             <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
-              {(['inquiries', 'landing-page', 'media', 'products', 'seo', 'pages'] as const).map((tab) => (
+              {(['settings', 'landing-page', 'products', 'pages', 'media', 'inquiries', 'system'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -661,10 +682,11 @@ export default function AdminPage() {
                     fontWeight: activeTab === tab ? 'bold' : 'normal',
                     backgroundColor: activeTab === tab ? 'var(--surface)' : 'transparent',
                     color: activeTab === tab ? 'var(--primary)' : 'var(--text-muted)',
-                    border: activeTab === tab ? '1px solid var(--surface-border)' : '1px solid transparent'
+                    border: activeTab === tab ? '1px solid var(--surface-border)' : '1px solid transparent',
+                    marginLeft: tab === 'system' ? 'auto' : '0'
                   }}
                 >
-                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab === 'seo' ? 'SEO' : tab.replace('-', ' ')}
+                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab.replace('-', ' ')}
                 </button>
               ))}
             </div>
@@ -1575,8 +1597,69 @@ export default function AdminPage() {
 {activeTab === 'products' && (
   <ProductsTab showNotification={showNotification} />
 )}
-{activeTab === 'seo' && (
-  <SEOTab showNotification={showNotification} />
+{activeTab === 'settings' && (
+  <div>
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      {(['general', 'seo', 'security'] as const).map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setSettingsTab(tab)}
+          className={`btn ${settingsTab === tab ? '' : 'btn-secondary'}`}
+          style={{ textTransform: 'capitalize', padding: '6px 12px', fontSize: '14px' }}
+        >
+          {tab === 'seo' ? 'Global SEO' : tab === 'security' ? 'Account & Security' : 'General'}
+        </button>
+      ))}
+    </div>
+    
+    {settingsTab === 'general' && (
+      <GeneralSettingsTab />
+    )}
+
+    {settingsTab === 'seo' && (
+      <SEOTab showNotification={showNotification} />
+    )}
+
+    {settingsTab === 'security' && (
+      <div className="card" style={{ maxWidth: '600px' }}>
+        <h2 className="admin-title">Change Password</h2>
+        <p className="admin-subtitle" style={{ marginBottom: '24px' }}>Update your administrative credentials.</p>
+
+        {changePasswordError && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{changePasswordError}</div>}
+        {changePasswordSuccess && <div className="admin-success-banner" style={{ marginBottom: '16px' }}>{changePasswordSuccess}</div>}
+
+        <form onSubmit={handleChangePassword}>
+          <div className="form-group">
+            <label className="label" htmlFor="tabCurrentPassword">Current Password</label>
+            <input type="password" id="tabCurrentPassword" required className="input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="label" htmlFor="tabNewPassword">New Password</label>
+            <input type="password" id="tabNewPassword" required className="input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="label" htmlFor="tabConfirmPassword">Confirm New Password</label>
+            <input type="password" id="tabConfirmPassword" required className="input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+
+          <div className="password-checklist" style={{ marginTop: '16px' }}>
+            <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}><span className="bullet">✓</span> At least 8 characters</div>
+            <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 uppercase letter</div>
+            <div className={`checklist-item ${hasLower ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 lowercase letter</div>
+            <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 number</div>
+            <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 special character</div>
+            <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}><span className="bullet">✓</span> Passwords match</div>
+          </div>
+
+          <button type="submit" disabled={changePasswordLoading || !canSubmitChangePassword} className="btn" style={{ marginTop: '24px' }}>
+            {changePasswordLoading ? 'Saving...' : 'Save Password'}
+          </button>
+        </form>
+      </div>
+    )}
+  </div>
 )}
 {activeTab === 'media' && (
   <MediaTab onSyncImages={handleSyncImages} syncLoading={saveLoading} />
@@ -1584,25 +1667,23 @@ export default function AdminPage() {
 {activeTab === 'pages' && (
   <PagesTab />
 )}
+{activeTab === 'system' && (
+  <SystemTab />
+)}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Change Password Modal (Admin logged in) */}
+      {/* Change Password Modal (Forced on first login) */}
       <AnimatePresence>
-        {isChangePasswordModalOpen && (
+        {isChangePasswordModalOpen && mustChangePassword && (
           <motion.div
             key="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="admin-modal-overlay"
-            onClick={() => {
-              setIsChangePasswordModalOpen(false);
-              setChangePasswordError('');
-              setChangePasswordSuccess('');
-            }}
           >
             <motion.div
               key="modal-content"
@@ -1612,8 +1693,8 @@ export default function AdminPage() {
               className="card admin-login-card admin-modal-card"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="admin-title">Change Password</h2>
-              <p className="admin-subtitle">Update your administrative credentials.</p>
+              <h2 className="admin-title">Change Password Required</h2>
+              <p className="admin-subtitle">For security reasons, please change your default password before continuing.</p>
 
               {changePasswordError && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{changePasswordError}</div>}
               {changePasswordSuccess && <div className="admin-success-banner" style={{ marginBottom: '16px' }}>{changePasswordSuccess}</div>}
@@ -1644,9 +1725,6 @@ export default function AdminPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button type="button" onClick={() => { setIsChangePasswordModalOpen(false); setChangePasswordError(''); setChangePasswordSuccess(''); }} className="btn btn-secondary" style={{ flex: 1 }}>
-                    Cancel
-                  </button>
                   <button type="submit" disabled={changePasswordLoading || !canSubmitChangePassword} className="btn" style={{ flex: 1 }}>
                     {changePasswordLoading ? 'Saving...' : 'Save Password'}
                   </button>

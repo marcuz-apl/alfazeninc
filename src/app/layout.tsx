@@ -23,6 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
       ogImage = globalSeo.og_image_url || ogImage;
       twitterHandle = globalSeo.twitter_handle || twitterHandle;
     }
+
+    const siteNameRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'site_name'").get() as any;
+    if (siteNameRow && siteNameRow.value) {
+      // If the admin specifically changed the global SEO title, we respect that.
+      // Otherwise we prefix the site_name.
+      if (!globalSeo || !globalSeo.global_title) {
+        title = `${title.split(' - ')[0]} - ${siteNameRow.value}`;
+      }
+    }
   } catch (e) {
     console.error("Failed to fetch global SEO", e);
   }

@@ -3,7 +3,7 @@
 This document provides a detailed summary of the technical design, implementation phases, and core features built for the Alfazen Inc. web platform.
 
 ## 1. Design Phase & Project Foundation
-- **Technical Stack Established:** Set up Next.js (App Router) for server-side rendering and routing. Used `better-sqlite3` to interface with a local `afzinc.db` file, providing a lightning-fast, zero-configuration local database.
+- **Technical Stack Established:** Set up Next.js (App Router) for server-side rendering and routing. Used `better-sqlite3` to interface with a local `smb4all.db` file, providing a lightning-fast, zero-configuration local database.
 - **UI/UX Strategy:** Designed a sleek, responsive landing page emphasizing a professional aesthetic. Instead of Tailwind, the project uses Vanilla CSS (`globals.css`) with CSS Variables (`var(--background)`, `var(--primary)`, `var(--text-primary)`). This architecture provides deep theme customization and ensures absolute control over the visual output.
 - **Dark/Light Mode:** Implemented a system-aware Dark/Light mode toggle that saves user preferences to `localStorage` and dynamically updates CSS variables across the entire application.
 - **Core Layouts:** Constructed the base layout comprising the Hero, Services, Gallery, Team, and Articles sections to mirror the original site's requirements.

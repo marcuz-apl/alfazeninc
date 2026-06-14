@@ -3,7 +3,7 @@ const path = require('path');
 const https = require('https');
 const Database = require('better-sqlite3');
 
-const dbPath = path.resolve(__dirname, '../data/afzinc.db');
+const dbPath = path.resolve(__dirname, '../data/smb4all.db');
 const db = new Database(dbPath);
 
 // Ensure the local folders exist

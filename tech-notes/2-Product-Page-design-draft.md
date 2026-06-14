@@ -33,4 +33,4 @@ To modularize the application layout by extracting the `Header` and `Footer` com
 
 ## Next Steps / Future Enhancements
 - Replace placeholder graphics in `/products` with actual product UI screenshots or relevant imagery.
-- Integrate product data into the CMS (e.g., `afzinc.db`) allowing administrators to dynamically update product descriptions, titles, and images via the admin panel.
+- Integrate product data into the CMS (e.g., `smb4all.db`) allowing administrators to dynamically update product descriptions, titles, and images via the admin panel.

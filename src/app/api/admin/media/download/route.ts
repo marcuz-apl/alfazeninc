@@ -19,7 +19,7 @@ function isPasswordChangeRequired() {
 function dbPrepareValue() {
   try {
     const Database = require('better-sqlite3');
-    const dbPath = path.resolve(process.cwd(), 'data/afzinc.db');
+    const dbPath = path.resolve(process.cwd(), 'data/smb4all.db');
     const db = new Database(dbPath);
     const pcRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'password_changed'").get() as { value: string } | undefined;
     return pcRow?.value;
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing url or section' }, { status: 400 });
     }
 
-    const sections = ['hero', 'services', 'gallery', 'team', 'articles'];
+    const sections = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'];
     if (!sections.includes(section)) {
       return NextResponse.json({ error: 'Invalid section folder' }, { status: 400 });
     }

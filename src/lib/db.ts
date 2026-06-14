@@ -10,7 +10,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Connect to the database file in the data folder
-const dbPath = path.resolve(dataDir, 'afzinc.db');
+const dbPath = path.resolve(dataDir, 'smb4all.db');
 const db = new Database(dbPath);
 
 // Initialize the table if it doesn't exist

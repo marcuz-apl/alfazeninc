@@ -15,7 +15,7 @@ function isPasswordChangeRequired() {
   return pcRow?.value === '0';
 }
 
-const SECTIONS = ['hero', 'services', 'gallery', 'team', 'articles'] as const;
+const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'] as const;
 
 // GET: List files in public/images subfolders
 export async function GET(request: NextRequest) {
