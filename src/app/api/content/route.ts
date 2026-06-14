@@ -26,6 +26,23 @@ export async function GET() {
       }
     });
 
+    const layoutRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'homepage_layout'").get() as any;
+    let layout = [];
+    if (layoutRow) {
+      layout = JSON.parse(layoutRow.value);
+    } else {
+      layout = [
+        { id: 'hero', visible: true },
+        { id: 'services', visible: true },
+        { id: 'gallery', visible: true },
+        { id: 'quote', visible: true },
+        { id: 'image_banner', visible: true },
+        { id: 'team', visible: true },
+        { id: 'article', visible: true },
+        { id: 'contact-us', visible: true }
+      ];
+    }
+
     return NextResponse.json({
       hero,
       servicesSettings,
@@ -33,7 +50,8 @@ export async function GET() {
       gallerySettings,
       gallery,
       team,
-      articles: parsedArticles
+      articles: parsedArticles,
+      layout
     });
   } catch (err) {
     console.error('Fetch landing page content error:', err);

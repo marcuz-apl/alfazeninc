@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MediaTab from './components/MediaTab';
 import ProductsTab from './components/ProductsTab';
 import SEOTab from './components/SEOTab';
+import PagesTab from './components/PagesTab';
+import LayoutTab from './components/LayoutTab';
 
 interface Message {
   id: number;
@@ -39,7 +41,8 @@ export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'inquiries' | 'hero' | 'services' | 'gallery' | 'team' | 'articles' | 'media' | 'products' | 'seo'>('inquiries');
+  const [activeTab, setActiveTab] = useState<'inquiries' | 'landing-page' | 'media' | 'products' | 'seo' | 'pages'>('inquiries');
+  const [landingPageTab, setLandingPageTab] = useState<'layout' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('layout');
 
   // Loading States
   const [loading, setLoading] = useState(true);
@@ -642,7 +645,7 @@ export default function AdminPage() {
 
             {/* Dashboard Tabs Navigation */}
             <div className="admin-tabs" style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--surface-border)', marginBottom: '24px', paddingBottom: '8px', overflowX: 'auto' }}>
-              {(['inquiries', 'hero', 'services', 'gallery', 'team', 'articles', 'media', 'products', 'seo'] as const).map((tab) => (
+              {(['inquiries', 'landing-page', 'media', 'products', 'seo', 'pages'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -661,7 +664,7 @@ export default function AdminPage() {
                     border: activeTab === tab ? '1px solid var(--surface-border)' : '1px solid transparent'
                   }}
                 >
-                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab}
+                  {tab === 'inquiries' ? `Inbox (${messages.length})` : tab === 'seo' ? 'SEO' : tab.replace('-', ' ')}
                 </button>
               ))}
             </div>
@@ -731,7 +734,26 @@ export default function AdminPage() {
               )}
 
               {/* Tab 2: Hero Section */}
-              {activeTab === 'hero' && content && (
+              {activeTab === 'landing-page' && (
+                <div>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                    {(['layout', 'hero', 'services', 'gallery', 'team', 'articles'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setLandingPageTab(tab)}
+                        className={`btn ${landingPageTab === tab ? '' : 'btn-secondary'}`}
+                        style={{ textTransform: 'capitalize', padding: '6px 12px', fontSize: '14px' }}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+
+                  {landingPageTab === 'layout' && (
+                    <LayoutTab />
+                  )}
+
+                  {landingPageTab === 'hero' && content && (
                 <div className="card" style={{ maxWidth: '800px' }}>
                   <h2 style={{ fontSize: '22px', marginBottom: '16px', color: 'var(--primary)' }}>Edit Hero Section</h2>
                   <form onSubmit={handleSaveHero}>
@@ -815,7 +837,7 @@ export default function AdminPage() {
               )}
 
               {/* Tab 3: Services */}
-              {activeTab === 'services' && content && (
+                  {landingPageTab === 'services' && content && (
                 <div>
                   {/* Edit Section Title */}
                   <div className="card" style={{ marginBottom: '24px' }}>
@@ -955,7 +977,7 @@ export default function AdminPage() {
               )}
 
               {/* Tab 4: Gallery */}
-              {activeTab === 'gallery' && content && (
+                  {landingPageTab === 'gallery' && content && (
                 <div>
                   {/* Settings section */}
                   <div className="card" style={{ marginBottom: '24px' }}>
@@ -1099,7 +1121,7 @@ export default function AdminPage() {
               )}
 
               {/* Tab 5: Team */}
-              {activeTab === 'team' && content && (
+                  {landingPageTab === 'team' && content && (
                 <div>
                   {editorMode === null ? (
                     <div className="card">
@@ -1322,7 +1344,7 @@ export default function AdminPage() {
               )}
 
               {/* Tab 6: Articles */}
-              {activeTab === 'articles' && content && (
+                  {landingPageTab === 'articles' && content && (
                 <div>
                   {editorMode === null ? (
                     <div className="card">
@@ -1548,6 +1570,8 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+                </div>
+              )}
 {activeTab === 'products' && (
   <ProductsTab showNotification={showNotification} />
 )}
@@ -1556,6 +1580,9 @@ export default function AdminPage() {
 )}
 {activeTab === 'media' && (
   <MediaTab onSyncImages={handleSyncImages} syncLoading={saveLoading} />
+)}
+{activeTab === 'pages' && (
+  <PagesTab />
 )}
             </div>
           </motion.div>

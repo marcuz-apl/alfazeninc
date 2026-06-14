@@ -140,7 +140,32 @@ db.exec(`
     meta_title TEXT,
     meta_description TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS custom_pages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    content_html TEXT NOT NULL,
+    meta_title TEXT,
+    meta_description TEXT
+  );
 `);
+
+// Check and initialize default homepage layout if not set
+const hasLayout = db.prepare("SELECT value FROM admin_settings WHERE key = 'homepage_layout'").get();
+if (!hasLayout) {
+  const defaultLayout = JSON.stringify([
+    { id: 'hero', visible: true },
+    { id: 'services', visible: true },
+    { id: 'gallery', visible: true },
+    { id: 'quote', visible: true },
+    { id: 'image_banner', visible: true },
+    { id: 'team', visible: true },
+    { id: 'article', visible: true },
+    { id: 'contact-us', visible: true }
+  ]);
+  db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('homepage_layout', ?)").run(defaultLayout);
+}
 
 // Safe Migrations for existing databases
 try {

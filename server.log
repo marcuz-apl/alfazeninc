@@ -1,0 +1,14 @@
+
+> alfazen-inc@1.4.2 dev
+> next dev -p 2038 -H 0.0.0.0
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use 0.0.0.0:2038
+    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:2038) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 2038
+}
+[?25h
