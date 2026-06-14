@@ -7,6 +7,7 @@ export default function GeneralSettingsTab() {
     site_name: 'Alfazen Inc.',
     site_slogan: 'Stay Zen at First Place',
     site_logo_url: '/images/brand/logo.png',
+    footer_phone: '+1 (403) 555-0123',
     footer_email: 'info@alfazen.org',
     footer_website: 'https://alfazen.org',
     footer_twitter: 'https://x.com',
@@ -136,6 +137,18 @@ export default function GeneralSettingsTab() {
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-group">
+            <label className="label" htmlFor="footer_phone">Phone Number</label>
+            <input 
+              type="text" 
+              id="footer_phone" 
+              className="input" 
+              value={settings.footer_phone} 
+              onChange={(e) => setSettings(({...settings, footer_phone: e.target.value}))} 
+              placeholder="e.g. +1 403 555 1234" 
+            />
+          </div>
+
           <div className="form-group">
             <label className="label" htmlFor="footer_email">Email Address</label>
             <input 

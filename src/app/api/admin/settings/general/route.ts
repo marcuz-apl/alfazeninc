@@ -13,7 +13,7 @@ export async function GET() {
   try {
     const keys = [
       'site_name', 'site_slogan', 'site_logo_url',
-      'footer_email', 'footer_website', 'footer_twitter', 'footer_linkedin',
+      'footer_phone', 'footer_email', 'footer_website', 'footer_twitter', 'footer_linkedin',
       'footer_disclaimer_title', 'footer_disclaimer_text'
     ];
     const placeholders = keys.map(() => '?').join(',');
@@ -23,6 +23,7 @@ export async function GET() {
       site_name: 'Alfazen Inc.',
       site_slogan: 'Stay Zen at First Place',
       site_logo_url: '/images/brand/logo.png',
+      footer_phone: '+1 (403) 555-0123',
       footer_email: 'info@alfazen.org',
       footer_website: 'https://alfazen.org',
       footer_twitter: 'https://x.com',
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       { key: 'site_name', value: body.site_name || 'Alfazen Inc.' },
       { key: 'site_slogan', value: body.site_slogan || 'Stay Zen at First Place' },
       { key: 'site_logo_url', value: body.site_logo_url || '/images/brand/logo.png' },
+      { key: 'footer_phone', value: body.footer_phone || '' },
       { key: 'footer_email', value: body.footer_email || '' },
       { key: 'footer_website', value: body.footer_website || '' },
       { key: 'footer_twitter', value: body.footer_twitter || '' },
