@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Footer() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showPhonePopup, setShowPhonePopup] = useState(false);
   const [settings, setSettings] = useState({
     site_name: 'Alfazen Inc.',
     footer_phone: '+1 (403) 555-0123',
@@ -108,14 +109,61 @@ export default function Footer() {
           </div>
           <div className="footer-right">
             {settings.footer_phone && (
-              <a href={`tel:${settings.footer_phone.replace(/\D/g, '')}`} className="footer-social-link" aria-label="Phone">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                </svg>
-              </a>
+              <div 
+                style={{ position: 'relative', display: 'inline-block' }} 
+                onMouseEnter={() => setShowPhonePopup(true)} 
+                onMouseLeave={() => setShowPhonePopup(false)}
+              >
+                <a 
+                  href={`tel:${settings.footer_phone.replace(/\D/g, '')}`} 
+                  className="footer-social-link" 
+                  aria-label="Phone"
+                  onClick={(e) => {
+                    // On mobile, let the tel: link work, but also toggle popup
+                    if (window.innerWidth > 768) {
+                      e.preventDefault();
+                      setShowPhonePopup(!showPhonePopup);
+                    }
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </a>
+                <AnimatePresence>
+                  {showPhonePopup && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: 10 }} 
+                      style={{ 
+                        position: 'absolute', 
+                        bottom: '100%', 
+                        left: '50%', 
+                        transform: 'translateX(-50%)', 
+                        marginBottom: '12px', 
+                        padding: '8px 16px', 
+                        background: 'var(--surface)', 
+                        border: '1px solid var(--surface-border)', 
+                        borderRadius: '8px', 
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.2)', 
+                        whiteSpace: 'nowrap', 
+                        zIndex: 100, 
+                        color: 'var(--foreground)', 
+                        fontSize: '14px', 
+                        fontWeight: 600,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      {settings.footer_phone}
+                      <div style={{ position: 'absolute', bottom: '-5px', left: '50%', marginLeft: '-5px', width: '10px', height: '10px', background: 'var(--surface)', borderRight: '1px solid var(--surface-border)', borderBottom: '1px solid var(--surface-border)', transform: 'rotate(45deg)' }} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
             {settings.footer_email && (
-              <a href={`mailto:${settings.footer_email}`} className="footer-social-link" aria-label="Email">
+              <a href={`mailto:${settings.footer_email}`} className="footer-social-link" aria-label="Email" title={settings.footer_email}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
@@ -123,7 +171,7 @@ export default function Footer() {
               </a>
             )}
             {settings.footer_website && (
-              <a href={settings.footer_website} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Website">
+              <a href={settings.footer_website} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Website" title="Visit Website">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="2" y1="12" x2="22" y2="12" />
@@ -132,14 +180,14 @@ export default function Footer() {
               </a>
             )}
             {settings.footer_twitter && (
-              <a href={settings.footer_twitter} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Twitter">
+              <a href={settings.footer_twitter} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Twitter" title="Twitter / X">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
             )}
             {settings.footer_linkedin && (
-              <a href={settings.footer_linkedin} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="LinkedIn">
+              <a href={settings.footer_linkedin} target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="LinkedIn" title="LinkedIn">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
