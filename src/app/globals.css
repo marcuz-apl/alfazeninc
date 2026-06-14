@@ -13,12 +13,17 @@
 [data-theme='dark'] {
   --background: #15141a;
   --foreground: #ffffff;
-  --primary: #60a5fa;
-  --primary-hover: #3b82f6;
+  --primary: #1e3a8a;
+  --primary-hover: #172554;
   --accent: #f53d63;
   --surface: #2b2a33;
   --surface-border: #4a4a55;
   --text-muted: #cfcfd8;
+}
+
+[data-theme='dark'] .card-title,
+[data-theme='dark'] .article-heading {
+  color: #60a5fa;
 }
 
 * {

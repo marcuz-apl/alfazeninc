@@ -14,6 +14,7 @@ interface ProductItem {
   status?: string;
   display_order: number;
   external_url?: string | null;
+  checkout_url?: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
 }
@@ -192,8 +193,9 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
         color: 'var(--primary)',
         logo_url: '',
         status: 'Officially released',
-        display_order: items.length + 1,
+        display_order: items.length,
         external_url: '',
+        checkout_url: '',
         meta_title: '',
         meta_description: ''
       });
@@ -308,8 +310,13 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
               </div>
 
               <div className="form-group" style={{ marginTop: '16px' }}>
-                <label className="label">Checkout / Booking URL (Optional)</label>
+                <label className="label">External Marketing URL (Overrides default Learn More link)</label>
                 <input type="url" className="input" value={editingCard?.external_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, external_url: e.target.value })} placeholder="https://..." />
+              </div>
+
+              <div className="form-group" style={{ marginTop: '16px' }}>
+                <label className="label">Checkout / Booking URL (Optional)</label>
+                <input type="url" className="input" value={editingCard?.checkout_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, checkout_url: e.target.value })} placeholder="https://..." />
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
                   Drop a Stripe Payment Link, Shopify URL, or Calendly link here to enable an instant "Buy Now" or "Book" button on this product's page.
                 </p>

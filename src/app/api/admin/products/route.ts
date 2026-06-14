@@ -32,15 +32,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const data = await request.json();
-    const { slug, name, description, features_json, color, logo_url, status, display_order, external_url, meta_title, meta_description } = data;
+    const { slug, name, description, features_json, color, logo_url, status, display_order, external_url, checkout_url, meta_title, meta_description } = data;
     
     if (!slug || !name || !description || !color) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const result = db.prepare(
-      'INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null, meta_title || null, meta_description || null);
+      'INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url, checkout_url, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null, checkout_url || null, meta_title || null, meta_description || null);
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {
@@ -55,15 +55,15 @@ export async function PUT(request: NextRequest) {
 
   try {
     const data = await request.json();
-    const { id, slug, name, description, features_json, color, logo_url, status, display_order, external_url, meta_title, meta_description } = data;
+    const { id, slug, name, description, features_json, color, logo_url, status, display_order, external_url, checkout_url, meta_title, meta_description } = data;
     
     if (!id || !slug || !name || !description || !color) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     db.prepare(
-      'UPDATE products_items SET slug = ?, name = ?, description = ?, features_json = ?, color = ?, logo_url = ?, status = ?, display_order = ?, external_url = ?, meta_title = ?, meta_description = ? WHERE id = ?'
-    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null, meta_title || null, meta_description || null, id);
+      'UPDATE products_items SET slug = ?, name = ?, description = ?, features_json = ?, color = ?, logo_url = ?, status = ?, display_order = ?, external_url = ?, checkout_url = ?, meta_title = ?, meta_description = ? WHERE id = ?'
+    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null, checkout_url || null, meta_title || null, meta_description || null, id);
 
     return NextResponse.json({ success: true });
   } catch (err) {

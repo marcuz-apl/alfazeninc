@@ -147,13 +147,38 @@ export default function ProductsPage() {
                   </ul>
                 )}
                 {statusText === 'Officially released' ? (
-                  <Link 
-                    href={`/products/${product.slug}`} 
-                    className="btn btn-lg" 
-                    style={{ textDecoration: 'none', display: 'inline-block' }}
-                  >
-                    Learn More about {product.name}
-                  </Link>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    {product.external_url ? (
+                      <a 
+                        href={product.external_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn btn-lg" 
+                        style={{ textDecoration: 'none', display: 'inline-block' }}
+                      >
+                        Learn More about {product.name}
+                      </a>
+                    ) : (
+                      <Link 
+                        href={`/products/${product.slug}`} 
+                        className="btn btn-lg" 
+                        style={{ textDecoration: 'none', display: 'inline-block' }}
+                      >
+                        Learn More about {product.name}
+                      </Link>
+                    )}
+                    {product.checkout_url && (
+                      <a 
+                        href={product.checkout_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn btn-lg" 
+                        style={{ textDecoration: 'none', display: 'inline-block', backgroundColor: 'var(--accent)' }}
+                      >
+                        Buy Now / Get Access
+                      </a>
+                    )}
+                  </div>
                 ) : (
                   <button 
                     className="btn btn-lg"

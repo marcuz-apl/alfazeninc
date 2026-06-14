@@ -212,6 +212,9 @@ try {
   db.exec("ALTER TABLE products_items ADD COLUMN meta_description TEXT");
 } catch (e) {}
 try {
+  db.exec("ALTER TABLE products_items ADD COLUMN checkout_url TEXT");
+} catch (e) {}
+try {
   db.exec("ALTER TABLE article_posts ADD COLUMN meta_title TEXT");
 } catch (e) {}
 try {
@@ -457,7 +460,7 @@ if (hasProducts.count === 0) {
       external_url: null
     }
   ];
-  const insertProduct = db.prepare("INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  const insertProduct = db.prepare("INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url, checkout_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
   for (const item of defaultProducts) {
     insertProduct.run(
       item.slug, 
@@ -468,7 +471,8 @@ if (hasProducts.count === 0) {
       item.logo_url, 
       'Officially released', 
       item.display_order,
-      item.external_url || null
+      item.external_url || null,
+      null
     );
   }
 }

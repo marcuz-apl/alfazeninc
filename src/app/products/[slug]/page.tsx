@@ -73,9 +73,9 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 )}
 
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  {product.external_url ? (
+                  {product.checkout_url ? (
                     <>
-                      <a href={product.external_url} target="_blank" rel="noopener noreferrer" className="btn" style={{ fontSize: '1.1rem', padding: '12px 32px' }}>
+                      <a href={product.checkout_url} target="_blank" rel="noopener noreferrer" className="btn" style={{ fontSize: '1.1rem', padding: '12px 32px' }}>
                         Buy Now / Get Access
                       </a>
                       <Link href="/products" className="btn btn-secondary">
