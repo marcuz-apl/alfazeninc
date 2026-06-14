@@ -18,9 +18,9 @@ However, to market this as a *Universal* Small Business Template, there are a fe
 - **Current State:** We are using `better-sqlite3` with a local `afzinc.db` file. This is brilliant for simplicity and works perfectly if deployed on a traditional VPS (like DigitalOcean or AWS EC2).
 - **To make it Universal:** Modern Next.js templates are usually deployed on serverless platforms like Vercel or Netlify. A local SQLite file *will not work* on Vercel because the filesystem is ephemeral (it resets on every request). To make this template universally deployable, we would need to swap local SQLite for a serverless-compatible database (like Turso/LibSQL, Supabase, or PostgreSQL).
 
-### 4. Dynamic SEO Management
-- **Current State:** The SEO titles and meta descriptions are currently mostly static or hardcoded.
-- **To make it Universal:** Small businesses rely heavily on local SEO. The Admin Panel should have a dedicated "SEO Settings" tab where the owner can update the global Meta Title, Description, OpenGraph images, and define custom SEO data for individual blog articles or products.
+### 4. Dynamic SEO Management (✅ Completed)
+- **Current State:** The Admin Panel now has a dedicated "SEO Settings" tab for global Meta Title, Description, and OpenGraph images. Additionally, individual Products and Articles have their own dynamic entity pages (`/products/[slug]`, `/articles/[id]`) with customizable SEO overrides.
+- **Universal Impact:** This is a huge win for small businesses that rely on local SEO. They can now control their search presence natively without touching code.
 
 ---
 
