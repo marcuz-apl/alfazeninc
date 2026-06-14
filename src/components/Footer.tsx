@@ -61,7 +61,7 @@ export default function Footer() {
     <>
       <footer className="footer">
         <div className="container" style={{ paddingBottom: '32px', borderBottom: '1px solid var(--surface-border)', marginBottom: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '8px' }}>Stay Updated</h3>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '8px' }}>Stay Tuned</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '15px' }}>Subscribe to our newsletter for the latest insights and updates.</p>
           
           <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px', maxWidth: '400px', width: '100%' }}>
