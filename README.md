@@ -4,13 +4,13 @@ A high-performance, professional Next.js landing page for **Alfazen Inc.** featu
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Framework** | Next.js (App Router) |
-| **Styling** | Vanilla CSS (`globals.css`) with CSS Variables for theming |
-| **Animations** | Framer Motion |
-| **Database** | SQLite (`better-sqlite3`) — local file `smb4all.db` |
-| **Auth** | Session cookie + password hashing (admin panel) |
+| Layer          | Technology                                                 |
+| ----------------| ------------------------------------------------------------|
+| **Framework**  | Next.js (App Router)                                       |
+| **Styling**    | Vanilla CSS (`globals.css`) with CSS Variables for theming |
+| **Animations** | Framer Motion                                              |
+| **Database**   | SQLite (`better-sqlite3`) — local file `smb4all.db`        |
+| **Auth**       | Session cookie + password hashing (admin panel)            |
 
 ### CMS Details
 All website content is dynamically driven by the database (`smb4all.db`). The Admin Panel includes sections for:
@@ -38,9 +38,15 @@ All website content is dynamically driven by the database (`smb4all.db`). The Ad
 
    1. **Auto-Initialization:** 
    The app auto-creates `smb4all.db` on first launch. You can inspect it with any SQLite client:
-   ```bash
    sqlite3 smb4all.db ".tables"
    ```
+
+## Deployment Strategy (VPS-First)
+
+This application is intentionally engineered with a **VPS-First Architecture**, leveraging `better-sqlite3` and local `.db` files. 
+- **Target Environments:** Docker, traditional VPS (DigitalOcean, AWS EC2, Linode), and self-hosted control panels like Coolify.
+- **Why?** By keeping the database local and completely synchronous, the app runs blazingly fast without the latency, network overhead, or vendor lock-in of remote serverless databases.
+- **Note:** This template is *not* designed for ephemeral serverless platforms (like Vercel or Netlify) because the local filesystem resets on every request. Embrace the speed and cost-effectiveness of self-hosting!
 
 ## Key Features
 

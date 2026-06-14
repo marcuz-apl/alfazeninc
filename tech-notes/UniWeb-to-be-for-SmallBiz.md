@@ -10,13 +10,13 @@ However, to market this as a *Universal* Small Business Template, there are a fe
 - **Current State:** The CMS now includes a "Pages" tab for creating dynamic custom pages, and a "Layout" tab to reorder or toggle the visibility of the Hero, Services, Gallery, Team, and Articles sections on the homepage.
 - **Universal Impact:** Business owners can now shape the exact narrative of their landing page and create unlimited supplemental pages, matching the flexibility of established CMS builders.
 
-### 2. E-commerce & Booking Capabilities
-- **Current State:** The "Products" section acts as a beautiful digital catalog with status tags, but customers cannot actually buy anything.
-- **To make it Universal:** Many small businesses (retail, bakeries, salons) need to process transactions or book appointments. We would need to integrate a lightweight checkout system (like Stripe Checkout) or a booking widget to cover those use cases.
+### 2. E-commerce & Booking Capabilities (✅ Completed)
+- **Current State:** Added lightweight "headless" e-commerce capabilities via `checkout_url`. The "Products" section acts as a beautiful digital catalog that intelligently displays "Buy Now / Get Access" CTAs for officially released products, routing customers directly to an external payment processor (like Stripe Checkout or Shopify).
+- **Universal Impact:** This decoupled approach allows small businesses to securely sell products and services without the overhead of PCI compliance, cart management, or complex native integrations.
 
-### 3. Serverless Deployment Constraints (SQLite)
-- **Current State:** We are using `better-sqlite3` with a local `smb4all.db` file. This is brilliant for simplicity and works perfectly if deployed on a traditional VPS (like DigitalOcean or AWS EC2).
-- **To make it Universal:** Modern Next.js templates are usually deployed on serverless platforms like Vercel or Netlify. A local SQLite file *will not work* on Vercel because the filesystem is ephemeral (it resets on every request). To make this template universally deployable, we would need to swap local SQLite for a serverless-compatible database (like Turso/LibSQL, Supabase, or PostgreSQL).
+### 3. VPS-First Architecture (SQLite)
+- **Strategic Decision:** We have explicitly chosen to rely on `better-sqlite3` with a local `smb4all.db` file, optimizing for bare-metal, Docker, and traditional VPS deployments (e.g., DigitalOcean, AWS EC2, Coolify).
+- **The "Why":** While serverless platforms (Vercel/Netlify) are popular, they require fully asynchronous, remote network databases which introduce latency, vendor lock-in, and complex scaling costs. By keeping our database local and synchronous, the app is ridiculously fast, completely self-contained, and cheap to host. We are proudly targeting the self-hosted / VPS market.
 
 ### 4. Dynamic SEO Management (✅ Completed)
 - **Current State:** The Admin Panel now has a dedicated "SEO Settings" tab for global Meta Title, Description, and OpenGraph images. Additionally, individual Products and Articles have their own dynamic entity pages (`/products/[slug]`, `/articles/[id]`) with customizable SEO overrides.
