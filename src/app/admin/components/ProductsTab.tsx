@@ -13,6 +13,7 @@ interface ProductItem {
   logo_url: string | null;
   status?: string;
   display_order: number;
+  external_url?: string | null;
 }
 
 interface ProductsTabProps {
@@ -20,7 +21,7 @@ interface ProductsTabProps {
 }
 
 export default function ProductsTab({ showNotification }: ProductsTabProps) {
-  const [settings, setSettings] = useState({ title: '', description: '' });
+  const [settings, setSettings] = useState({ title: '', description: '', unreleased_message: '' });
   const [items, setItems] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -189,7 +190,8 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
         color: 'var(--primary)',
         logo_url: '',
         status: 'Officially released',
-        display_order: items.length + 1
+        display_order: items.length + 1,
+        external_url: ''
       });
       setFeaturesText('');
     }
@@ -221,6 +223,15 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
               value={settings?.description || ''} 
               onChange={(e) => setSettings({ ...settings, description: e.target.value })}
               required
+            />
+          </div>
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="label">Unreleased Product Pop-up Message</label>
+            <textarea 
+              className="input" 
+              rows={3}
+              value={settings?.unreleased_message || ''} 
+              onChange={(e) => setSettings({ ...settings, unreleased_message: e.target.value })}
             />
           </div>
           <button type="submit" disabled={saveLoading} className="btn" style={{ marginTop: '20px' }}>
@@ -290,6 +301,11 @@ export default function ProductsTab({ showNotification }: ProductsTabProps) {
                   <label className="label">Display Order</label>
                   <input type="number" className="input" value={editingCard?.display_order || 0} onChange={(e) => setEditingCard({ ...editingCard!, display_order: parseInt(e.target.value) || 0 })} required />
                 </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '16px' }}>
+                <label className="label">External URL (For Released Products)</label>
+                <input type="text" className="input" value={editingCard?.external_url || ''} onChange={(e) => setEditingCard({ ...editingCard!, external_url: e.target.value })} placeholder="https://..." />
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>

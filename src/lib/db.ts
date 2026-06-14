@@ -106,7 +106,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS products_settings (
     id INTEGER PRIMARY KEY DEFAULT 1,
     title TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    unreleased_message TEXT DEFAULT 'Thanks for interests in this topic/product, Please go to our "Contact Us" page to leave messages about ideas, requirements of functions, how the product shall be, what the targeted markets or audience you are, etc. Thanks.'
   );
 
   CREATE TABLE IF NOT EXISTS products_items (
@@ -118,7 +119,8 @@ db.exec(`
     color TEXT NOT NULL,
     logo_url TEXT,
     status TEXT DEFAULT 'Officially released',
-    display_order INTEGER DEFAULT 0
+    display_order INTEGER DEFAULT 0,
+    external_url TEXT
   );
 `);
 
@@ -146,6 +148,12 @@ try {
 } catch (e) {}
 try {
   db.exec("ALTER TABLE gallery_items ADD COLUMN category TEXT DEFAULT 'all'");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE products_settings ADD COLUMN unreleased_message TEXT DEFAULT 'Thanks for interests in this topic/product, Please go to our \"Contact Us\" page to leave messages about ideas, requirements of functions, how the product shall be, what the targeted markets or audience you are, etc. Thanks.'");
+} catch (e) {}
+try {
+  db.exec("ALTER TABLE products_items ADD COLUMN external_url TEXT");
 } catch (e) {}
 
 // Seed default data if empty
@@ -324,9 +332,10 @@ if (hasArticles.count === 0) {
 
 const hasProductsSettings = db.prepare("SELECT count(*) as count FROM products_settings").get() as { count: number };
 if (hasProductsSettings.count === 0) {
-  db.prepare("INSERT INTO products_settings (id, title, description) VALUES (1, ?, ?)").run(
+  db.prepare("INSERT INTO products_settings (id, title, description, unreleased_message) VALUES (1, ?, ?, ?)").run(
     "Our Products",
-    "Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry."
+    "Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.",
+    "Thanks for interests in this topic/product, Please go to our \"Contact Us\" page to leave messages about ideas, requirements of functions, how the product shall be, what the targeted markets or audience you are, etc. Thanks."
   );
 }
 
@@ -345,7 +354,8 @@ if (hasProducts.count === 0) {
       ]),
       color: 'var(--primary)',
       logo_url: '/images/products/resologix-logo-cropped.png',
-      display_order: 1
+      display_order: 1,
+      external_url: null
     },
     {
       slug: 'elogant',
@@ -366,8 +376,8 @@ if (hasProducts.count === 0) {
       display_order: 3
     },
     {
-      slug: 'seiscul',
-      name: 'Seiscul',
+      slug: 'seiscult',
+      name: 'SeisCult',
       description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
       features_json: null,
       color: 'var(--secondary)',
@@ -381,12 +391,23 @@ if (hasProducts.count === 0) {
       features_json: null,
       color: 'var(--primary)',
       logo_url: null,
-      display_order: 5
+      display_order: 5,
+      external_url: null
     }
   ];
+  const insertProduct = db.prepare("INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
   for (const item of defaultProducts) {
-    db.prepare("INSERT INTO products_items (slug, name, description, features_json, color, logo_url, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)")
-      .run(item.slug, item.name, item.description, item.features_json, item.color, item.logo_url, item.display_order);
+    insertProduct.run(
+      item.slug, 
+      item.name, 
+      item.description, 
+      item.features_json, 
+      item.color, 
+      item.logo_url, 
+      'Officially released', 
+      item.display_order,
+      item.external_url || null
+    );
   }
 }
 

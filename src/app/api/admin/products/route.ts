@@ -32,15 +32,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const data = await request.json();
-    const { slug, name, description, features_json, color, logo_url, status, display_order } = data;
+    const { slug, name, description, features_json, color, logo_url, status, display_order, external_url } = data;
     
     if (!slug || !name || !description || !color) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const result = db.prepare(
-      'INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0);
+      'INSERT INTO products_items (slug, name, description, features_json, color, logo_url, status, display_order, external_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null);
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {
@@ -55,15 +55,15 @@ export async function PUT(request: NextRequest) {
 
   try {
     const data = await request.json();
-    const { id, slug, name, description, features_json, color, logo_url, status, display_order } = data;
+    const { id, slug, name, description, features_json, color, logo_url, status, display_order, external_url } = data;
     
     if (!id || !slug || !name || !description || !color) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     db.prepare(
-      'UPDATE products_items SET slug = ?, name = ?, description = ?, features_json = ?, color = ?, logo_url = ?, status = ?, display_order = ? WHERE id = ?'
-    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, id);
+      'UPDATE products_items SET slug = ?, name = ?, description = ?, features_json = ?, color = ?, logo_url = ?, status = ?, display_order = ?, external_url = ? WHERE id = ?'
+    ).run(slug, name, description, features_json ? (typeof features_json === 'string' ? features_json : JSON.stringify(features_json)) : null, color, logo_url || null, status || 'Officially released', display_order || 0, external_url || null, id);
 
     return NextResponse.json({ success: true });
   } catch (err) {

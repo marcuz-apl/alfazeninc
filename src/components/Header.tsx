@@ -16,7 +16,7 @@ export default function Header() {
     { name: 'ResoLogix', href: '/products#resologix' },
     { name: 'Elogant', href: '/products#elogant' },
     { name: 'Diabit', href: '/products#diabit' },
-    { name: 'Seiscul', href: '/products#seiscul' },
+    { name: 'SeisCult', href: '/products#seiscult' },
     { name: 'FinaPick', href: '/products#finapick' },
   ];
 

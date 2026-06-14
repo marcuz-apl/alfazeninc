@@ -3,13 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 export default function ProductsPage() {
   const [settings, setSettings] = useState({ 
     title: 'Our Products', 
-    description: 'Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.' 
+    description: 'Discover the comprehensive suite of AI-driven solutions from Alfazen Inc., designed specifically to tackle the unique challenges of the oil and gas industry.',
+    unreleased_message: 'Thanks for interests in this topic/product, Please go to our "Contact Us" page to leave messages about ideas, requirements of functions, how the product shall be, what the targeted markets or audience you are, etc. Thanks.'
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<any>(null);
   
   const [products, setProducts] = useState<any[]>([
     {
@@ -41,9 +45,9 @@ export default function ProductsPage() {
       color: 'var(--primary)'
     },
     {
-      id: 'seiscul',
-      slug: 'seiscul',
-      name: 'Seiscul',
+      id: 'seiscult',
+      slug: 'seiscult',
+      name: 'SeisCult',
       description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
       color: 'var(--secondary)'
     },
@@ -127,7 +131,7 @@ export default function ProductsPage() {
                 transition={{ duration: 0.6 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '3rem', margin: 0, color: 'var(--text-primary)' }}>{product.name}</h2>
+                  <h2 style={{ fontSize: '3rem', margin: 0, color: 'var(--text-primary)' }}>{product.name}™</h2>
                   <div style={{ padding: '6px 12px', backgroundColor: statusBgColor, color: '#ffffff', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', whiteSpace: 'nowrap' }}>
                     {statusText}
                   </div>
@@ -142,7 +146,27 @@ export default function ProductsPage() {
                     ))}
                   </ul>
                 )}
-                <button className="btn btn-lg">Learn More about {product.name}</button>
+                {statusText === 'Officially released' ? (
+                  <a 
+                    href={product.external_url || '#'} 
+                    target={product.external_url ? "_blank" : "_self"} 
+                    rel="noopener noreferrer" 
+                    className="btn btn-lg" 
+                    style={{ textDecoration: 'none', display: 'inline-block' }}
+                  >
+                    Learn More about {product.name}
+                  </a>
+                ) : (
+                  <button 
+                    className="btn btn-lg"
+                    onClick={() => {
+                      setActiveProduct(product);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Learn More about {product.name}
+                  </button>
+                )}
               </motion.div>
               <motion.div
                 className="product-image"
@@ -183,6 +207,41 @@ export default function ProductsPage() {
       </section>
 
       <Footer />
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              style={{ position: 'relative', backgroundColor: 'var(--surface)', padding: '40px', borderRadius: '12px', maxWidth: '500px', width: '90%', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid var(--surface-border)' }}
+            >
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: 'var(--text-primary)' }}>
+                {activeProduct?.name}™ - {activeProduct?.status}
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '32px' }}>
+                {settings.unreleased_message}
+              </p>
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
+                <button onClick={() => setIsModalOpen(false)} className="btn btn-secondary">
+                  Close
+                </button>
+                <Link href="/#contact-us" onClick={() => setIsModalOpen(false)} className="btn">
+                  Go to Contact Us
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

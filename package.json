@@ -1,6 +1,6 @@
 {
   "name": "alfazen-inc",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "private": true,
   "scripts": {
     "dev": "next dev -p 2038 -H 0.0.0.0",

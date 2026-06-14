@@ -31,10 +31,10 @@ export async function PUT(request: NextRequest) {
   if (isPasswordChangeRequired()) return NextResponse.json({ error: 'Password change required' }, { status: 403 });
 
   try {
-    const { title, description } = await request.json();
+    const { title, description, unreleased_message } = await request.json();
     if (!title || !description) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
 
-    db.prepare('UPDATE products_settings SET title = ?, description = ? WHERE id = 1').run(title, description);
+    db.prepare('UPDATE products_settings SET title = ?, description = ?, unreleased_message = ? WHERE id = 1').run(title, description, unreleased_message || null);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
