@@ -147,15 +147,13 @@ export default function ProductsPage() {
                   </ul>
                 )}
                 {statusText === 'Officially released' ? (
-                  <a 
-                    href={product.external_url || '#'} 
-                    target={product.external_url ? "_blank" : "_self"} 
-                    rel="noopener noreferrer" 
+                  <Link 
+                    href={`/products/${product.slug}`} 
                     className="btn btn-lg" 
                     style={{ textDecoration: 'none', display: 'inline-block' }}
                   >
                     Learn More about {product.name}
-                  </a>
+                  </Link>
                 ) : (
                   <button 
                     className="btn btn-lg"
