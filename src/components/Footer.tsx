@@ -15,6 +15,10 @@ export default function Footer() {
     footer_disclaimer_text: 'Alfazen Inc. is a technical consultancy and AI software solutions provider based in Calgary, AB, Canada. The analytical models, reservoir simulations, predictive maintenance algorithms, and consulting services presented on this website or delivered during client engagements are intended for operational optimization and general informational purposes.\n\nWhile our solutions utilize advanced artificial intelligence and data science methodologies, all technical evaluations, engineering recommendations, and geoscientific designs must be reviewed, validated, and signed off by licensed professional engineers and qualified geoscientists prior to operational deployment or final field execution.\n\nAlfazen Inc. shall not be held liable for any engineering decisions, operational downtime, equipment failures, resource mismanagement, or financial outcomes arising from the implementation of analytical projections or software configurations provided by our consultancy.'
   });
 
+  const [email, setEmail] = useState('');
+  const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [subMessage, setSubMessage] = useState('');
+
   useEffect(() => {
     fetch('/api/settings/general')
       .then(res => res.json())
@@ -24,9 +28,74 @@ export default function Footer() {
       .catch(console.error);
   }, []);
 
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) return;
+    setSubStatus('loading');
+    
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSubStatus('success');
+        setSubMessage(data.message || 'Subscribed successfully!');
+        setEmail('');
+        setTimeout(() => setSubStatus('idle'), 5000);
+      } else {
+        setSubStatus('error');
+        setSubMessage(data.error || 'Failed to subscribe');
+      }
+    } catch (err) {
+      setSubStatus('error');
+      setSubMessage('Network error occurred');
+    }
+  };
+
   return (
     <>
       <footer className="footer">
+        <div className="container" style={{ paddingBottom: '32px', borderBottom: '1px solid var(--surface-border)', marginBottom: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '8px' }}>Stay Updated</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '15px' }}>Subscribe to our newsletter for the latest insights and updates.</p>
+          
+          <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px', maxWidth: '400px', width: '100%' }}>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email address" 
+              required
+              disabled={subStatus === 'loading'}
+              style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--surface-border)', background: 'var(--background)', color: 'var(--text-primary)', outline: 'none' }}
+            />
+            <button 
+              type="submit" 
+              disabled={subStatus === 'loading'}
+              className="btn" 
+              style={{ whiteSpace: 'nowrap', padding: '12px 24px' }}
+            >
+              {subStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
+            </button>
+          </form>
+          
+          <AnimatePresence>
+            {subStatus === 'success' && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ color: 'var(--success)', marginTop: '12px', fontSize: '14px', fontWeight: 500 }}>
+                {subMessage}
+              </motion.div>
+            )}
+            {subStatus === 'error' && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ color: 'var(--error)', marginTop: '12px', fontSize: '14px', fontWeight: 500 }}>
+                {subMessage}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <div className="container footer-layout">
           <div className="footer-left">
             <button onClick={() => setShowDisclaimer(true)} className="footer-btn">

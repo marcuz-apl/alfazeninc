@@ -44,6 +44,7 @@ export default function AdminPage() {
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'inquiries' | 'landing-page' | 'pages' | 'products' | 'media' | 'system'>('settings');
+  const [inquiriesTab, setInquiriesTab] = useState<'messages' | 'subscribers'>('messages');
   const [landingPageTab, setLandingPageTab] = useState<'layout' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('layout');
   const [settingsTab, setSettingsTab] = useState<'general' | 'seo' | 'security'>('general');
 
@@ -69,6 +70,7 @@ export default function AdminPage() {
 
   // Data States
   const [messages, setMessages] = useState<Message[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [content, setContent] = useState<any>(null);
 
   // Form Fields
@@ -114,6 +116,12 @@ export default function AdminPage() {
         setMessages(msgData.messages || []);
         setIsLoggedIn(true);
         setMustChangePassword(false);
+        
+        const subRes = await fetch('/api/admin/subscribers');
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          setSubscribers(subData || []);
+        }
       } else if (msgRes.status === 403) {
         setIsLoggedIn(true);
         setMustChangePassword(true);
@@ -221,21 +229,31 @@ export default function AdminPage() {
 
   const handleDeleteMessage = async (id: number) => {
     if (!confirm('Are you sure you want to delete this message?')) return;
-
     try {
-      const response = await fetch('/api/admin/messages', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-
-      if (response.ok) {
+      const res = await fetch(`/api/admin/messages?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
         setMessages((prev) => prev.filter((msg) => msg.id !== id));
       } else {
-        alert('Failed to delete the message.');
+        alert('Failed to delete message');
       }
     } catch (err) {
-      console.error('Delete message error:', err);
+      console.error(err);
+      alert('Error deleting message');
+    }
+  };
+
+  const handleDeleteSubscriber = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this subscriber?')) return;
+    try {
+      const res = await fetch(`/api/admin/subscribers?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setSubscribers((prev) => prev.filter((sub) => sub.id !== id));
+      } else {
+        alert('Failed to delete subscriber');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting subscriber');
     }
   };
 
@@ -696,21 +714,32 @@ export default function AdminPage() {
               {/* Tab 1: Inquiries */}
               {activeTab === 'inquiries' && (
                 <div>
-                  {/* Dashboard Stats */}
-                  <div className="admin-stats-grid" style={{ marginBottom: '24px' }}>
-                    <div className="card admin-stat-card">
-                      <h3>Total Inquiries</h3>
-                      <p className="stat-number">{messages.length}</p>
-                    </div>
-                    <div className="card admin-stat-card">
-                      <h3>Latest Inquiry</h3>
-                      <p className="stat-number" style={{ fontSize: '18px' }}>
-                        {messages.length > 0
-                          ? new Date(messages[0].created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                          : 'No messages'}
-                      </p>
-                    </div>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+                    <button onClick={() => setInquiriesTab('messages')} className={`btn ${inquiriesTab === 'messages' ? '' : 'btn-secondary'}`}>
+                      Direct Messages ({messages.length})
+                    </button>
+                    <button onClick={() => setInquiriesTab('subscribers')} className={`btn ${inquiriesTab === 'subscribers' ? '' : 'btn-secondary'}`}>
+                      Newsletter Subscribers ({subscribers.length})
+                    </button>
                   </div>
+
+                  {inquiriesTab === 'messages' && (
+                    <>
+                      {/* Dashboard Stats */}
+                      <div className="admin-stats-grid" style={{ marginBottom: '24px' }}>
+                        <div className="card admin-stat-card">
+                          <h3>Total Inquiries</h3>
+                          <p className="stat-number">{messages.length}</p>
+                        </div>
+                        <div className="card admin-stat-card">
+                          <h3>Latest Inquiry</h3>
+                          <p className="stat-number" style={{ fontSize: '18px' }}>
+                            {messages.length > 0
+                              ? new Date(messages[0].created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                              : 'No messages'}
+                          </p>
+                        </div>
+                      </div>
 
                   <div className="card admin-table-card">
                     <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Inbox Submissions</h2>
@@ -752,6 +781,50 @@ export default function AdminPage() {
                       </div>
                     )}
                   </div>
+                    </>
+                  )}
+
+                  {inquiriesTab === 'subscribers' && (
+                    <div className="card admin-table-card">
+                      <h2 style={{ fontSize: '20px', marginBottom: '20px' }}>Newsletter Subscribers</h2>
+                      {subscribers.length === 0 ? (
+                        <div className="admin-empty-state"><p>No subscribers yet.</p></div>
+                      ) : (
+                        <div className="table-responsive">
+                          <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid var(--surface-border)', textAlign: 'left' }}>
+                                <th style={{ padding: '12px' }}>Date Subscribed</th>
+                                <th style={{ padding: '12px' }}>Email Address</th>
+                                <th style={{ padding: '12px' }}>Status</th>
+                                <th style={{ padding: '12px' }}>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {subscribers.map((sub) => (
+                                <tr key={sub.id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                                  <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                                    {new Date(sub.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </td>
+                                  <td style={{ padding: '12px' }}><strong>{sub.email}</strong></td>
+                                  <td style={{ padding: '12px' }}>
+                                    <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', background: sub.status === 'active' ? 'var(--success)' : 'var(--surface-border)', color: sub.status === 'active' ? 'white' : 'var(--text-muted)' }}>
+                                      {sub.status}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '12px' }}>
+                                    <button onClick={() => handleDeleteSubscriber(sub.id)} className="admin-delete-btn" style={{ padding: '6px 12px', border: '1px solid var(--surface-border)', borderRadius: '4px', cursor: 'pointer' }}>
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
