@@ -60,3 +60,29 @@ Now that the heavy lifting is done, head over to your Synology NAS!
    - Map a folder for images (e.g., `/docker/alfazen/images`) to `/app/public/images`
 
 Start the container, and your app will boot instantly!
+
+---
+
+## 5. Troubleshooting: "Database Error" (Volume Permissions)
+
+If you get a **"Database Error"** pop-up when modifying settings or submitting forms in the CMS Dashboard, this is due to a permission mismatch between the Synology host folder and the container.
+
+Inside the container, the Next.js application runs as a non-root user (`nextjs` with UID `1001`). If the host folders mapped to `/app/data` and `/app/public/images` are owned by `root` or another user, the application will not be able to write to the SQLite database.
+
+### Solution
+
+To resolve this issue:
+
+1. **SSH into your Synology NAS**.
+2. Navigate to the directory containing your mounted volume folders (e.g., `/volume1/docker/alfazen` or the directory with your `docker-compose.yml`).
+3. Set the ownership of the mounted directories to UID `1001` (the user inside the container) and grant permissions:
+   ```bash
+   sudo chown -R 1001:1001 ./data ./public/images
+   sudo chmod -R 775 ./data ./public/images
+   ```
+4. Restart the container to apply the permission changes:
+   ```bash
+   docker-compose down
+   docker-compose up -d
+   ```
+
