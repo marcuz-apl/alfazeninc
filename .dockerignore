@@ -4,7 +4,13 @@ out
 .git
 .gitignore
 .dockerignore
+building-blocks
+tech-notes
+.agents
+AGENTS.md
+CLAUDE.md
 data
 *.db
 *.sqlite
 *.sqlite3
+
