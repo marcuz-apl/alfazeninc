@@ -44,4 +44,4 @@ next-env.d.ts
 *.db
 *.sqlite
 *.sqlite3
-data/smb4all.db
+#data/smb4all.db
