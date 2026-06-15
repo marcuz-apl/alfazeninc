@@ -41,7 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # database
-*.db
-*.sqlite
-*.sqlite3
-#data/smb4all.db
+
