@@ -1,6 +1,6 @@
 {
   "name": "web4smb-lite",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "private": true,
   "scripts": {
     "dev": "next dev -p 2038 -H 0.0.0.0",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
