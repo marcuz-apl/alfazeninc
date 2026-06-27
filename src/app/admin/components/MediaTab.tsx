@@ -45,7 +45,7 @@ interface MediaTabProps {
 
 export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
   /* ─── state ─── */
-  const [files, setFiles] = useState<Record<Section, string[]>>({ brand: [], hero: [], services: [], gallery: [], team: [], articles: [], products: [] });
+  const [files, setFiles] = useState<Record<Section, { name: string, size: number, dimensions?: string }[]>>({ brand: [], hero: [], services: [], gallery: [], team: [], articles: [], products: [] });
   const [selectedSection, setSelectedSection] = useState<Section>('hero');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -430,7 +430,9 @@ export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
             gap: '20px',
           }}>
             <AnimatePresence>
-              {sectionFiles.map((filename) => {
+              {sectionFiles.map((fileObj) => {
+                const filename = fileObj.name;
+                const filesize = formatFileSize(fileObj.size);
                 const filePath = `/images/${selectedSection}/${filename}`;
                 const ext = getFileExtension(filename);
                 const video = isVideo(filename);
@@ -444,6 +446,7 @@ export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
                     animate={{ opacity: isDeleting ? 0.4 : 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.85 }}
                     transition={{ duration: 0.25 }}
+                    title={`File Name: ${filename}\nFile Size: ${filesize}\nDimensions: ${fileObj.dimensions || 'N/A'}\nFile Path: ${filePath}\nType: ${ext}`}
                     style={{
                       border: '1px solid var(--surface-border)',
                       borderRadius: '12px',
@@ -497,9 +500,10 @@ export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
                         fontSize: '13px',
                         fontWeight: 500,
                         color: 'var(--foreground)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        padding: '0 4px',
+                        overflow: 'hidden',
                       }} title={filename}>
                         {filename}
                       </p>

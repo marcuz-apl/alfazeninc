@@ -1516,7 +1516,8 @@ export default function AdminPage() {
                               published_date: new Date().toISOString().split('T')[0],
                               display_order: content.articles.length + 1,
                               meta_title: '',
-                              meta_description: ''
+                              meta_description: '',
+                              image_height: ''
                             });
                           }}
                           className="btn"
@@ -1616,6 +1617,19 @@ export default function AdminPage() {
                               value={editingCard.image_alt} 
                               onChange={(e) => setEditingCard({ ...editingCard, image_alt: e.target.value })}
                               required
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: '16px' }}>
+                          <div className="form-group">
+                            <label className="label">Image Height (Optional override)</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={editingCard.image_height || ''} 
+                              onChange={(e) => setEditingCard({ ...editingCard, image_height: e.target.value })}
+                              placeholder="e.g. 1080px, 400px (leaves blank for general settings)"
                             />
                           </div>
                         </div>

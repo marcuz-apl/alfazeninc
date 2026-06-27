@@ -115,7 +115,8 @@ db.transaction(() => {
       published_date TEXT,
       display_order INTEGER DEFAULT 0,
       meta_title TEXT,
-      meta_description TEXT
+      meta_description TEXT,
+      image_height TEXT
     );
 
     CREATE TABLE IF NOT EXISTS products_settings (
@@ -239,6 +240,9 @@ db.transaction(() => {
   } catch (e) {}
   try {
     db.exec("ALTER TABLE article_posts ADD COLUMN meta_description TEXT");
+  } catch (e) {}
+  try {
+    db.exec("ALTER TABLE article_posts ADD COLUMN image_height TEXT");
   } catch (e) {}
 
   // Seed default data if empty

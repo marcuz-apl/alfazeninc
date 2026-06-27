@@ -382,7 +382,7 @@ export default function HomeClient() {
                     transition={{ duration: 0.6 }}
                     style={{ 
                       order: index % 2 === 1 ? 2 : 1,
-                      height: articleImageHeight
+                      height: post.image_height || articleImageHeight
                     }}
                   >
                     <img 

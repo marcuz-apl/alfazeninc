@@ -23,7 +23,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const { id, title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description } = await request.json();
+    const { id, title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description, image_height } = await request.json();
     if (!id || !title || !content || !image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required post fields' }, { status: 400 });
     }
@@ -33,9 +33,9 @@ export async function PUT(request: NextRequest) {
 
     db.prepare(`
       UPDATE article_posts 
-      SET title = ?, content = ?, image_url = ?, image_alt = ?, author = ?, published_date = ?, display_order = ?, meta_title = ?, meta_description = ?
+      SET title = ?, content = ?, image_url = ?, image_alt = ?, author = ?, published_date = ?, display_order = ?, meta_title = ?, meta_description = ?, image_height = ?
       WHERE id = ?
-    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null, id);
+    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null, image_height || null, id);
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description } = await request.json();
+    const { title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description, image_height } = await request.json();
     if (!title || !content || !image_url || !image_alt) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -63,9 +63,9 @@ export async function POST(request: NextRequest) {
     const dbContent = typeof content === 'string' ? content : JSON.stringify(content);
 
     const result = db.prepare(`
-      INSERT INTO article_posts (title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null);
+      INSERT INTO article_posts (title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description, image_height)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(title, dbContent, image_url, image_alt, author || '', published_date || '', display_order || 0, meta_title || null, meta_description || null, image_height || null);
 
     return NextResponse.json({ success: true, id: result.lastInsertRowid });
   } catch (err) {

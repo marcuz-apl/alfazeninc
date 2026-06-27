@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
+import { imageSize } from 'image-size';
 
 const SESSION_SECRET = process.env.SESSION_SECRET || 'alfazen-secure-secret-token';
 
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const publicDir = path.resolve(process.cwd(), 'public');
-    const result: Record<string, string[]> = {};
+    const result: Record<string, { name: string, size: number, dimensions?: string }[]> = {};
 
     SECTIONS.forEach((sec) => {
       const dirPath = path.join(publicDir, 'images', sec);
@@ -37,6 +38,21 @@ export async function GET(request: NextRequest) {
         .filter(file => {
           const stats = fs.statSync(path.join(dirPath, file));
           return stats.isFile() && !file.startsWith('.');
+        })
+        .map(file => {
+          const filePath = path.join(dirPath, file);
+          const stats = fs.statSync(filePath);
+          let dimensions;
+          try {
+            const buffer = fs.readFileSync(filePath);
+            const dimensionsObj = imageSize(buffer);
+            if (dimensionsObj && dimensionsObj.width && dimensionsObj.height) {
+              dimensions = `${dimensionsObj.width}x${dimensionsObj.height}`;
+            }
+          } catch (e) {
+            // Not an image or unsupported format, skip dimensions
+          }
+          return { name: file, size: stats.size, dimensions };
         });
         
       result[sec] = files;
