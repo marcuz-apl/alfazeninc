@@ -45,5 +45,5 @@ next-env.d.ts
 *.sqlite
 *.sqlite3
 data/smb4all.db
-
-
+data/smb4all.db-wal
+data/smb4all.db-shm
