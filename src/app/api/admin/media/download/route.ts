@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing url or section' }, { status: 400 });
     }
 
-    const sections = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'];
+    const sections = ['brand', 'hero', 'services', 'gallery', 'team', 'articles', 'products'];
     if (!sections.includes(section)) {
       return NextResponse.json({ error: 'Invalid section folder' }, { status: 400 });
     }

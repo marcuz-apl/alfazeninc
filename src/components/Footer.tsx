@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import Link from 'next/link';
+
 export default function Footer() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showPhonePopup, setShowPhonePopup] = useState(false);
@@ -14,7 +16,8 @@ export default function Footer() {
     footer_twitter: 'https://x.com',
     footer_linkedin: 'https://linkedin.com',
     footer_disclaimer_title: 'Disclaimer & Professional Statement',
-    footer_disclaimer_text: 'Alfazen Inc. is a technical consultancy and AI software solutions provider based in Calgary, AB, Canada. The analytical models, reservoir simulations, predictive maintenance algorithms, and consulting services presented on this website or delivered during client engagements are intended for operational optimization and general informational purposes.\n\nWhile our solutions utilize advanced artificial intelligence and data science methodologies, all technical evaluations, engineering recommendations, and geoscientific designs must be reviewed, validated, and signed off by licensed professional engineers and qualified geoscientists prior to operational deployment or final field execution.\n\nAlfazen Inc. shall not be held liable for any engineering decisions, operational downtime, equipment failures, resource mismanagement, or financial outcomes arising from the implementation of analytical projections or software configurations provided by our consultancy.'
+    footer_disclaimer_text: 'Alfazen Inc. is a technical consultancy and AI software solutions provider based in Calgary, AB, Canada. The analytical models, reservoir simulations, predictive maintenance algorithms, and consulting services presented on this website or delivered during client engagements are intended for operational optimization and general informational purposes.\n\nWhile our solutions utilize advanced artificial intelligence and data science methodologies, all technical evaluations, engineering recommendations, and geoscientific designs must be reviewed, validated, and signed off by licensed professional engineers and qualified geoscientists prior to operational deployment or final field execution.\n\nAlfazen Inc. shall not be held liable for any engineering decisions, operational downtime, equipment failures, resource mismanagement, or financial outcomes arising from the implementation of analytical projections or software configurations provided by our consultancy.',
+    footer_patronage_enabled: 'true'
   });
 
   const [email, setEmail] = useState('');
@@ -99,10 +102,15 @@ export default function Footer() {
         </div>
 
         <div className="container footer-layout">
-          <div className="footer-left">
+          <div className="footer-left" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <button onClick={() => setShowDisclaimer(true)} className="footer-btn">
               Disclaimer
             </button>
+            {settings.footer_patronage_enabled === 'true' && (
+              <Link href="/patronage" className="footer-btn">
+                Patronage
+              </Link>
+            )}
           </div>
           <div className="footer-center">
             <p>@2026 {settings.site_name}. All rights reserved. The website is empowered by ❤️ Gemini AI ❤️</p>

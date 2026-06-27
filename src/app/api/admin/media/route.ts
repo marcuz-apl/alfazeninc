@@ -15,7 +15,7 @@ function isPasswordChangeRequired() {
   return pcRow?.value === '0';
 }
 
-const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'] as const;
+const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles', 'products'] as const;
 
 // GET: List files in public/images subfolders
 export async function GET(request: NextRequest) {
@@ -79,12 +79,15 @@ export async function DELETE(request: NextRequest) {
     const inTeam = db.prepare("SELECT count(*) as count FROM team_cards WHERE image_url = ?").get(dbUrlPath) as { count: number };
     // Articles
     const inArticles = db.prepare("SELECT count(*) as count FROM article_posts WHERE image_url = ?").get(dbUrlPath) as { count: number };
+    // Products
+    const inProducts = db.prepare("SELECT count(*) as count FROM products_items WHERE logo_url = ?").get(dbUrlPath) as { count: number };
 
     const inUse = (inHero?.count || 0) > 0 || 
                   (inServices?.count || 0) > 0 || 
                   (inGallery?.count || 0) > 0 || 
                   (inTeam?.count || 0) > 0 || 
-                  (inArticles?.count || 0) > 0;
+                  (inArticles?.count || 0) > 0 ||
+                  (inProducts?.count || 0) > 0;
 
     if (inUse) {
       return NextResponse.json({ 

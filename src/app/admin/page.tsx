@@ -232,11 +232,7 @@ export default function AdminPage() {
     try {
       const response = await fetch('/api/admin/logout', { method: 'POST' });
       if (response.ok) {
-        setIsLoggedIn(false);
-        setMustChangePassword(false);
-        setMessages([]);
-        setUsername('');
-        setPassword('');
+        window.location.href = '/';
       }
     } catch (err) {
       console.error('Logout error:', err);

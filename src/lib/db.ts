@@ -180,6 +180,14 @@ db.transaction(() => {
     db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('homepage_layout', ?)").run(defaultLayout);
   }
 
+  // Add Patronage Settings if missing
+  const hasPatronageEnabled = db.prepare("SELECT value FROM admin_settings WHERE key = 'footer_patronage_enabled'").get();
+  if (!hasPatronageEnabled) {
+    db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('footer_patronage_enabled', 'true')").run();
+    db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('patronage_message', 'I am passionate about creating free, high-quality software for the energy sector. However, the costs of maintaining and hosting these services can add up quickly. If you find value in my work, please consider supporting me with a small donation. Your kindness and generosity are deeply appreciated and help keep these tools free for everyone!')").run();
+    db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('patronage_link', '')").run();
+  }
+
   // Safe Migrations for existing databases
   try {
     db.exec("ALTER TABLE hero_settings ADD COLUMN background_type TEXT DEFAULT 'image'");

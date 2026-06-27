@@ -10,7 +10,7 @@ const inter = Inter({
 import db from '@/lib/db';
 
 export async function generateMetadata(): Promise<Metadata> {
-  let title = "Global AI Solutions for Oil & Gas - Alfazen Inc.";
+  let title = "Alfazen Inc. - AI Solutions for Energy";
   let description = "With over 20 years of experience across multiple continents, Alfazen Inc. leverages advanced AI and data science to tackle the unique challenges of the oil and gas industry.";
   let ogImage = "/images/hero/hero_bg.jpg";
   let twitterHandle = "@alfazeninc";

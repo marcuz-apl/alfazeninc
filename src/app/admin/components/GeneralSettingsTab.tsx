@@ -13,7 +13,10 @@ export default function GeneralSettingsTab() {
     footer_twitter: 'https://x.com',
     footer_linkedin: 'https://linkedin.com',
     footer_disclaimer_title: 'Disclaimer & Professional Statement',
-    footer_disclaimer_text: ''
+    footer_disclaimer_text: '',
+    footer_patronage_enabled: 'true',
+    patronage_message: '',
+    patronage_link: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -229,6 +232,51 @@ export default function GeneralSettingsTab() {
             style={{ resize: 'vertical' }}
           />
         </div>
+
+        {/* === PATRONAGE SECTION === */}
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '32px', marginBottom: '16px', color: 'var(--text)', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px' }}>
+          Patronage & Donations
+        </h3>
+
+        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input 
+            type="checkbox" 
+            id="footer_patronage_enabled" 
+            checked={settings.footer_patronage_enabled === 'true'}
+            onChange={(e) => setSettings(({...settings, footer_patronage_enabled: e.target.checked ? 'true' : 'false'}))} 
+            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+          />
+          <label className="label" htmlFor="footer_patronage_enabled" style={{ margin: 0, cursor: 'pointer' }}>Enable Patronage Button in Footer</label>
+        </div>
+
+        {settings.footer_patronage_enabled === 'true' && (
+          <>
+            <div className="form-group" style={{ marginTop: '16px' }}>
+              <label className="label" htmlFor="patronage_link">Donation Link (Stripe, PayPal, Ko-fi)</label>
+              <input 
+                type="url" 
+                id="patronage_link" 
+                className="input" 
+                value={settings.patronage_link} 
+                onChange={(e) => setSettings(({...settings, patronage_link: e.target.value}))} 
+                placeholder="e.g. https://buy.stripe.com/..." 
+              />
+            </div>
+
+            <div className="form-group" style={{ marginTop: '16px' }}>
+              <label className="label" htmlFor="patronage_message">Patronage Message</label>
+              <textarea 
+                id="patronage_message" 
+                className="input" 
+                value={settings.patronage_message} 
+                onChange={(e) => setSettings(({...settings, patronage_message: e.target.value}))} 
+                rows={5}
+                placeholder="Message to display on the patronage page..." 
+                style={{ resize: 'vertical' }}
+              />
+            </div>
+          </>
+        )}
 
         <button type="submit" disabled={isSaving} className="btn" style={{ marginTop: '32px', width: '100%' }}>
           {isSaving ? 'Saving...' : 'Save General Settings'}

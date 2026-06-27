@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'] as const;
+const SECTIONS = ['brand', 'hero', 'services', 'gallery', 'team', 'articles', 'products'] as const;
 type Section = (typeof SECTIONS)[number];
 
 const SECTION_ICONS: Record<Section, string> = {
@@ -12,7 +12,18 @@ const SECTION_ICONS: Record<Section, string> = {
   services: '✨',
   gallery: '📸',
   team: '👥',
-  articles: '📝'
+  articles: '📝',
+  products: '📦'
+};
+
+const SECTION_LABELS: Record<Section, string> = {
+  brand: 'Brand Assets',
+  hero: 'Hero Backgrounds',
+  services: 'Service Images',
+  gallery: 'Gallery Photos',
+  team: 'Team Portraits',
+  articles: 'Article Covers',
+  products: 'Product Logos'
 };
 
 function formatFileSize(bytes: number): string {
@@ -34,7 +45,7 @@ interface MediaTabProps {
 
 export default function MediaTab({ onSyncImages, syncLoading }: MediaTabProps) {
   /* ─── state ─── */
-  const [files, setFiles] = useState<Record<Section, string[]>>({ brand: [], hero: [], services: [], gallery: [], team: [], articles: [] });
+  const [files, setFiles] = useState<Record<Section, string[]>>({ brand: [], hero: [], services: [], gallery: [], team: [], articles: [], products: [] });
   const [selectedSection, setSelectedSection] = useState<Section>('hero');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);

@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const publicDir = path.resolve(process.cwd(), 'public');
-    const sections = ['brand', 'hero', 'services', 'gallery', 'team', 'articles'];
+    const sections = ['brand', 'hero', 'services', 'gallery', 'team', 'articles', 'products'];
     
     sections.forEach(sec => {
       const dir = path.join(publicDir, 'images', sec);
