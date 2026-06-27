@@ -16,7 +16,8 @@ export default function GeneralSettingsTab() {
     footer_disclaimer_text: '',
     footer_patronage_enabled: 'true',
     patronage_message: '',
-    patronage_link: ''
+    patronage_link: '',
+    article_image_height: '400px'
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -277,6 +278,26 @@ export default function GeneralSettingsTab() {
             </div>
           </>
         )}
+
+        {/* === LANDING PAGE UI SETTINGS SECTION === */}
+        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '32px', marginBottom: '16px', color: 'var(--text)', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px' }}>
+          Landing Page UI Overrides
+        </h3>
+
+        <div className="form-group">
+          <label className="label" htmlFor="article_image_height">Article Image Height</label>
+          <input 
+            type="text" 
+            id="article_image_height" 
+            className="input" 
+            value={settings.article_image_height} 
+            onChange={(e) => setSettings(({...settings, article_image_height: e.target.value}))} 
+            placeholder="e.g. 400px, 600px, 50vh, etc." 
+          />
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Set a custom CSS height for the article images on the landing page. Default is 600px.
+          </p>
+        </div>
 
         <button type="submit" disabled={isSaving} className="btn" style={{ marginTop: '32px', width: '100%' }}>
           {isSaving ? 'Saving...' : 'Save General Settings'}

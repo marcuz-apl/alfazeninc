@@ -145,6 +145,8 @@ export default function HomeClient() {
     { id: 'contact-us', visible: true }
   ]);
 
+  const [articleImageHeight, setArticleImageHeight] = useState('600px');
+
   // Load Content from API
   useEffect(() => {
     fetch('/api/content')
@@ -160,6 +162,14 @@ export default function HomeClient() {
         if (data.layout && data.layout.length > 0) setLayout(data.layout);
       })
       .catch((err) => console.error('Error loading landing page content:', err));
+
+    // Load general settings for UI overrides
+    fetch('/api/settings/general')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.article_image_height) setArticleImageHeight(data.article_image_height);
+      })
+      .catch((err) => console.error('Error loading general settings:', err));
   }, []);
   const renderSection = (sectionId: string) => {
     switch (sectionId) {
@@ -370,7 +380,10 @@ export default function HomeClient() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    style={{ order: index % 2 === 1 ? 2 : 1 }}
+                    style={{ 
+                      order: index % 2 === 1 ? 2 : 1,
+                      height: articleImageHeight
+                    }}
                   >
                     <img 
                       src={post.image_url} 

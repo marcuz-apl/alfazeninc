@@ -188,6 +188,12 @@ db.transaction(() => {
     db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('patronage_link', '')").run();
   }
 
+  // Add Article Image Height setting if missing
+  const hasArticleImageHeight = db.prepare("SELECT value FROM admin_settings WHERE key = 'article_image_height'").get();
+  if (!hasArticleImageHeight) {
+    db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('article_image_height', '400px')").run();
+  }
+
   // Safe Migrations for existing databases
   try {
     db.exec("ALTER TABLE hero_settings ADD COLUMN background_type TEXT DEFAULT 'image'");
