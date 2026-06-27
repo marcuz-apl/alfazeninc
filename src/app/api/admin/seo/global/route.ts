@@ -8,14 +8,9 @@ function isAuthenticated(request: NextRequest) {
   return token === SESSION_SECRET;
 }
 
-function isPasswordChangeRequired() {
-  const pcRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'password_changed'").get() as { value: string } | undefined;
-  return pcRow?.value === '0';
-}
 
 export async function GET(request: NextRequest) {
   if (!isAuthenticated(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (isPasswordChangeRequired()) return NextResponse.json({ error: 'Password change required' }, { status: 403 });
 
   try {
     const settings = db.prepare('SELECT * FROM global_seo WHERE id = 1').get();
@@ -28,7 +23,6 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   if (!isAuthenticated(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (isPasswordChangeRequired()) return NextResponse.json({ error: 'Password change required' }, { status: 403 });
 
   try {
     const { global_title, global_description, og_image_url, twitter_handle } = await request.json();

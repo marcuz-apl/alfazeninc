@@ -381,7 +381,7 @@ export default function HomeClient() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                     style={{ 
-                      order: index % 2 === 1 ? 2 : 1,
+                      order: 2,
                       height: post.image_height || articleImageHeight
                     }}
                   >
@@ -399,7 +399,7 @@ export default function HomeClient() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                     className="article-content"
-                    style={{ order: index % 2 === 1 ? 1 : 2 }}
+                    style={{ order: 1 }}
                   >
                     <Link href={`/articles/${post.id}`} style={{ textDecoration: 'none' }}>
                       <h2 className="article-title">{post.title}</h2>

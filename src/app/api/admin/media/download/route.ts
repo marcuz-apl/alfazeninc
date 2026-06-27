@@ -69,9 +69,6 @@ export async function POST(request: NextRequest) {
   if (!isAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  if (isPasswordChangeRequired()) {
-    return NextResponse.json({ error: 'Password change required' }, { status: 403 });
-  }
 
   try {
     const { url, section } = await request.json();

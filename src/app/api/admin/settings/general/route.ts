@@ -15,7 +15,8 @@ export async function GET() {
       'site_name', 'site_slogan', 'site_logo_url',
       'footer_phone', 'footer_email', 'footer_website', 'footer_twitter', 'footer_linkedin',
       'footer_disclaimer_title', 'footer_disclaimer_text',
-      'footer_patronage_enabled', 'patronage_message', 'patronage_link', 'article_image_height'
+      'footer_patronage_enabled', 'patronage_message', 'patronage_link', 'article_image_height',
+      'password_changed'
     ];
     const placeholders = keys.map(() => '?').join(',');
     const rows = db.prepare(`SELECT key, value FROM admin_settings WHERE key IN (${placeholders})`).all(...keys) as {key: string, value: string}[];
@@ -34,7 +35,8 @@ export async function GET() {
       footer_patronage_enabled: 'true',
       patronage_message: 'I am passionate about creating free, high-quality software for the energy sector. However, the costs of maintaining and hosting these services can add up quickly. If you find value in my work, please consider supporting me with a small donation. Your kindness and generosity are deeply appreciated and help keep these tools free for everyone!',
       patronage_link: '',
-      article_image_height: '400px'
+      article_image_height: '400px',
+      password_changed: '1'
     };
 
     rows.forEach(row => {

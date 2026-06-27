@@ -11,10 +11,6 @@ function isAuthenticated(request: NextRequest) {
   return token === SESSION_SECRET;
 }
 
-function isPasswordChangeRequired() {
-  const pcRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'password_changed'").get() as { value: string } | undefined;
-  return pcRow?.value === '0';
-}
 
 function downloadFile(url: string, destPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -43,9 +39,6 @@ function downloadFile(url: string, destPath: string): Promise<string> {
 export async function POST(request: NextRequest) {
   if (!isAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (isPasswordChangeRequired()) {
-    return NextResponse.json({ error: 'Password change required' }, { status: 403 });
   }
 
   try {

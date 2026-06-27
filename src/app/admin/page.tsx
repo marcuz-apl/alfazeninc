@@ -138,9 +138,6 @@ export default function AdminPage() {
           const subData = await subRes.json();
           setSubscribers(subData || []);
         }
-      } else if (msgRes.status === 403) {
-        setIsLoggedIn(true);
-        setMustChangePassword(true);
       } else if (msgRes.status === 401) {
         setIsLoggedIn(false);
       }
@@ -150,6 +147,12 @@ export default function AdminPage() {
       if (contentRes.ok) {
         const contentData = await contentRes.json();
         setContent(contentData);
+      }
+
+      const settingsRes = await fetch('/api/admin/settings/general');
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setMustChangePassword(settingsData.settings?.password_changed === '0');
       }
     } catch (err) {
       console.error('Error fetching admin data:', err);
@@ -611,50 +614,16 @@ export default function AdminPage() {
               </button>
             </form>
           </motion.div>
-        ) : mustChangePassword ? (
-          <motion.div key="force-change-password" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="admin-login-wrapper">
-            <form onSubmit={handleChangePassword} className="card admin-login-card">
-              <h2 className="admin-title">Update Password</h2>
-              <p className="admin-subtitle">Update your password to a strong one before proceeding.</p>
-
-              {changePasswordError && <div className="admin-error-banner" style={{ marginBottom: '16px' }}>{changePasswordError}</div>}
-              {changePasswordSuccess && <div className="admin-success-banner" style={{ marginBottom: '16px' }}>{changePasswordSuccess}</div>}
-
-              <div className="form-group">
-                <label className="label" htmlFor="currentPassword">Current Password</label>
-                <input type="password" id="currentPassword" required className="input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
-              </div>
-
-              <div className="form-group" style={{ marginTop: '16px' }}>
-                <label className="label" htmlFor="newPassword">New Password</label>
-                <input type="password" id="newPassword" required className="input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
-              </div>
-
-              <div className="form-group" style={{ marginTop: '16px' }}>
-                <label className="label" htmlFor="confirmPassword">Confirm New Password</label>
-                <input type="password" id="confirmPassword" required className="input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
-              </div>
-
-              <div className="password-checklist" style={{ marginTop: '16px' }}>
-                <div className={`checklist-item ${isLengthValid ? 'valid' : ''}`}><span className="bullet">✓</span> At least 8 characters</div>
-                <div className={`checklist-item ${hasUpper ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 uppercase letter</div>
-                <div className={`checklist-item ${hasLower ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 lowercase letter</div>
-                <div className={`checklist-item ${hasDigit ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 number</div>
-                <div className={`checklist-item ${hasSpecial ? 'valid' : ''}`}><span className="bullet">✓</span> At least 1 special character</div>
-                <div className={`checklist-item ${passwordsMatch ? 'valid' : ''}`}><span className="bullet">✓</span> Passwords match</div>
-              </div>
-
-              <button type="submit" disabled={changePasswordLoading || !canSubmitChangePassword} className="btn" style={{ width: '100%', marginTop: '24px' }}>
-                {changePasswordLoading ? 'Updating...' : 'Update Password'}
-              </button>
-
-              <button type="button" onClick={handleLogout} className="btn btn-secondary" style={{ width: '100%', marginTop: '12px' }}>
-                Cancel / Logout
-              </button>
-            </form>
-          </motion.div>
         ) : (
           <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-dashboard-wrapper">
+            {mustChangePassword && (
+              <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '12px 20px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #ffeeba' }}>
+                <div>
+                  <strong style={{ marginRight: '8px' }}>Security Warning:</strong>
+                  You are using the default admin password. For security reasons, please change your password in the <strong>Settings &rarr; Account & Security</strong> tab.
+                </div>
+              </div>
+            )}
             {/* Dashboard Header */}
             <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <a 

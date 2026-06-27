@@ -8,18 +8,11 @@ function isAuthenticated(request: NextRequest) {
   return token === SESSION_SECRET;
 }
 
-function isPasswordChangeRequired() {
-  const pcRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'password_changed'").get() as { value: string } | undefined;
-  return pcRow?.value === '0';
-}
 
 // Update a post
 export async function PUT(request: NextRequest) {
   if (!isAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (isPasswordChangeRequired()) {
-    return NextResponse.json({ error: 'Password change required' }, { status: 403 });
   }
 
   try {
@@ -49,9 +42,6 @@ export async function POST(request: NextRequest) {
   if (!isAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  if (isPasswordChangeRequired()) {
-    return NextResponse.json({ error: 'Password change required' }, { status: 403 });
-  }
 
   try {
     const { title, content, image_url, image_alt, author, published_date, display_order, meta_title, meta_description, image_height } = await request.json();
@@ -78,9 +68,6 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   if (!isAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (isPasswordChangeRequired()) {
-    return NextResponse.json({ error: 'Password change required' }, { status: 403 });
   }
 
   try {
