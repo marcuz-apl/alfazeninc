@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: alfazen-website
+    container_name: alfazen-inc
     restart: unless-stopped
     ports:
       - "2038:2038"
