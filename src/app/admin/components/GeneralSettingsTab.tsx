@@ -17,7 +17,8 @@ export default function GeneralSettingsTab() {
     footer_patronage_enabled: 'true',
     patronage_message: '',
     patronage_link: '',
-    article_image_height: '400px'
+    article_image_height: '400px',
+    footer_show_powered_by: 'true'
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -234,10 +235,21 @@ export default function GeneralSettingsTab() {
           />
         </div>
 
-        {/* === PATRONAGE SECTION === */}
+        {/* === FOOTER OPTIONS SECTION === */}
         <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '32px', marginBottom: '16px', color: 'var(--text)', borderBottom: '1px solid var(--surface-border)', paddingBottom: '8px' }}>
-          Patronage & Donations
+          Footer Extra Settings
         </h3>
+
+        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <input 
+            type="checkbox" 
+            id="footer_show_powered_by" 
+            checked={settings.footer_show_powered_by === 'true'}
+            onChange={(e) => setSettings(({...settings, footer_show_powered_by: e.target.checked ? 'true' : 'false'}))} 
+            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+          />
+          <label className="label" htmlFor="footer_show_powered_by" style={{ margin: 0, cursor: 'pointer' }}>Show "Powered by Gemini AI" Text</label>
+        </div>
 
         <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <input 

@@ -189,6 +189,12 @@ db.transaction(() => {
     db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('patronage_link', '')").run();
   }
 
+  // Add Footer Show Powered By setting if missing
+  const hasFooterShowPoweredBy = db.prepare("SELECT value FROM admin_settings WHERE key = 'footer_show_powered_by'").get();
+  if (!hasFooterShowPoweredBy) {
+    db.prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES ('footer_show_powered_by', 'true')").run();
+  }
+
   // Add Article Image Height setting if missing
   const hasArticleImageHeight = db.prepare("SELECT value FROM admin_settings WHERE key = 'article_image_height'").get();
   if (!hasArticleImageHeight) {
@@ -244,6 +250,15 @@ db.transaction(() => {
   try {
     db.exec("ALTER TABLE article_posts ADD COLUMN image_height TEXT");
   } catch (e) {}
+  try {
+    db.prepare("UPDATE products_items SET logo_url = '/images/products/resologix-logo.png' WHERE slug = 'resologix' AND (logo_url IS NULL OR logo_url = '/images/products/resologix-logo-cropped.png' OR logo_url = '')").run();
+    db.prepare("UPDATE products_items SET logo_url = '/images/products/elogant-logo.png' WHERE slug = 'elogant' AND (logo_url IS NULL OR logo_url = '')").run();
+    db.prepare("UPDATE products_items SET logo_url = '/images/products/diabit-logo.png' WHERE slug = 'diabit' AND (logo_url IS NULL OR logo_url = '')").run();
+    db.prepare("UPDATE products_items SET logo_url = '/images/products/seiscul-logo.png' WHERE slug = 'seiscult' AND (logo_url IS NULL OR logo_url = '')").run();
+    db.prepare("UPDATE products_items SET logo_url = '/images/products/finapick-logo.png' WHERE slug = 'finapick' AND (logo_url IS NULL OR logo_url = '')").run();
+  } catch (e) {
+    console.error("Failed to migrate products logo_url:", e);
+  }
 
   // Seed default data if empty
   const hasHero = db.prepare("SELECT count(*) as count FROM hero_settings").get() as { count: number };
@@ -442,7 +457,7 @@ db.transaction(() => {
           'Reporting Suite with PDF, Excel, and PowerPoint exports'
         ]),
         color: 'var(--primary)',
-        logo_url: '/images/products/resologix-logo-cropped.png',
+        logo_url: '/images/products/resologix-logo.png',
         display_order: 1,
         external_url: null
       },
@@ -452,7 +467,7 @@ db.transaction(() => {
         description: 'Intelligent well logging and data interpretation. Streamline operations with automated insights and highly accurate predictions.',
         features_json: null,
         color: 'var(--secondary)',
-        logo_url: null,
+        logo_url: '/images/products/elogant-logo.png',
         display_order: 2
       },
       {
@@ -461,7 +476,7 @@ db.transaction(() => {
         description: 'Predictive maintenance and equipment health monitoring. Prevent downtime before it happens using advanced machine learning algorithms.',
         features_json: null,
         color: 'var(--primary)',
-        logo_url: null,
+        logo_url: '/images/products/diabit-logo.png',
         display_order: 3
       },
       {
@@ -470,7 +485,7 @@ db.transaction(() => {
         description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
         features_json: null,
         color: 'var(--secondary)',
-        logo_url: null,
+        logo_url: '/images/products/seiscul-logo.png',
         display_order: 4
       },
       {
@@ -479,7 +494,7 @@ db.transaction(() => {
         description: 'Financial forecasting and asset valuation for the energy sector. Make data-driven investment decisions with confidence.',
         features_json: null,
         color: 'var(--primary)',
-        logo_url: null,
+        logo_url: '/images/products/finapick-logo.png',
         display_order: 5,
         external_url: null
       }

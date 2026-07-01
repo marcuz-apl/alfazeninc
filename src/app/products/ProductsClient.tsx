@@ -28,35 +28,39 @@ export default function ProductsPage() {
         'Reporting Suite with PDF, Excel, and PowerPoint exports'
       ],
       color: 'var(--primary)',
-      logoUrl: '/images/products/resologix-logo-cropped.png'
+      logoUrl: '/images/products/resologix-logo.png'
     },
     {
       id: 'elogant',
       slug: 'elogant',
       name: 'Elogant',
       description: 'Intelligent well logging and data interpretation. Streamline operations with automated insights and highly accurate predictions.',
-      color: 'var(--secondary)'
+      color: 'var(--secondary)',
+      logoUrl: '/images/products/elogant-logo.png'
     },
     {
       id: 'diabit',
       slug: 'diabit',
       name: 'Diabit',
       description: 'Predictive maintenance and equipment health monitoring. Prevent downtime before it happens using advanced machine learning algorithms.',
-      color: 'var(--primary)'
+      color: 'var(--primary)',
+      logoUrl: '/images/products/diabit-logo.png'
     },
     {
       id: 'seiscult',
       slug: 'seiscult',
       name: 'SeisCult',
       description: 'Seismic data processing and visualization. Enhance subsurface imaging to pinpoint valuable resources with unprecedented accuracy.',
-      color: 'var(--secondary)'
+      color: 'var(--secondary)',
+      logoUrl: '/images/products/seiscul-logo.png'
     },
     {
       id: 'finapick',
       slug: 'finapick',
       name: 'FinaPick',
       description: 'Financial forecasting and asset valuation for the energy sector. Make data-driven investment decisions with confidence.',
-      color: 'var(--primary)'
+      color: 'var(--primary)',
+      logoUrl: '/images/products/finapick-logo.png'
     }
   ]);
 

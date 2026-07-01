@@ -4,12 +4,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   let title = "Product Details";
   let description = "Learn more about our product.";
 
   try {
-    const product = db.prepare("SELECT * FROM products_items WHERE slug = ?").get(params.slug) as any;
+    const { slug } = await params;
+    const product = db.prepare("SELECT * FROM products_items WHERE slug = ?").get(slug) as any;
     if (product) {
       title = product.meta_title || `${product.name} - Alfazen Inc.`;
       description = product.meta_description || product.description;
@@ -21,8 +22,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title, description };
 }
 
-export default function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const product = db.prepare("SELECT * FROM products_items WHERE slug = ?").get(params.slug) as any;
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = db.prepare("SELECT * FROM products_items WHERE slug = ?").get(slug) as any;
 
   if (!product) {
     return (

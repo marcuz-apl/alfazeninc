@@ -16,6 +16,7 @@ export async function GET() {
       'footer_phone', 'footer_email', 'footer_website', 'footer_twitter', 'footer_linkedin',
       'footer_disclaimer_title', 'footer_disclaimer_text',
       'footer_patronage_enabled', 'patronage_message', 'patronage_link', 'article_image_height',
+      'footer_show_powered_by',
       'password_changed'
     ];
     const placeholders = keys.map(() => '?').join(',');
@@ -36,6 +37,7 @@ export async function GET() {
       patronage_message: 'I am passionate about creating free, high-quality software for the energy sector. However, the costs of maintaining and hosting these services can add up quickly. If you find value in my work, please consider supporting me with a small donation. Your kindness and generosity are deeply appreciated and help keep these tools free for everyone!',
       patronage_link: '',
       article_image_height: '400px',
+      footer_show_powered_by: 'true',
       password_changed: '1'
     };
 
@@ -84,7 +86,8 @@ export async function POST(request: Request) {
       { key: 'footer_patronage_enabled', value: body.footer_patronage_enabled !== undefined ? String(body.footer_patronage_enabled) : 'true' },
       { key: 'patronage_message', value: body.patronage_message || '' },
       { key: 'patronage_link', value: body.patronage_link || '' },
-      { key: 'article_image_height', value: body.article_image_height || '400px' }
+      { key: 'article_image_height', value: body.article_image_height || '400px' },
+      { key: 'footer_show_powered_by', value: body.footer_show_powered_by !== undefined ? String(body.footer_show_powered_by) : 'true' }
     ]);
 
     return NextResponse.json({ success: true });

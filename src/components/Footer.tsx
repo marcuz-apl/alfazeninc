@@ -17,7 +17,8 @@ export default function Footer() {
     footer_linkedin: 'https://linkedin.com',
     footer_disclaimer_title: 'Disclaimer & Professional Statement',
     footer_disclaimer_text: 'Alfazen Inc. is a technical consultancy and AI software solutions provider based in Calgary, AB, Canada. The analytical models, reservoir simulations, predictive maintenance algorithms, and consulting services presented on this website or delivered during client engagements are intended for operational optimization and general informational purposes.\n\nWhile our solutions utilize advanced artificial intelligence and data science methodologies, all technical evaluations, engineering recommendations, and geoscientific designs must be reviewed, validated, and signed off by licensed professional engineers and qualified geoscientists prior to operational deployment or final field execution.\n\nAlfazen Inc. shall not be held liable for any engineering decisions, operational downtime, equipment failures, resource mismanagement, or financial outcomes arising from the implementation of analytical projections or software configurations provided by our consultancy.',
-    footer_patronage_enabled: 'true'
+    footer_patronage_enabled: 'true',
+    footer_show_powered_by: 'true'
   });
 
   const [email, setEmail] = useState('');
@@ -102,7 +103,7 @@ export default function Footer() {
         </div>
 
         <div className="container footer-layout">
-          <div className="footer-left" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div className="footer-left" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
             <button onClick={() => setShowDisclaimer(true)} className="footer-btn">
               Disclaimer
             </button>
@@ -112,8 +113,11 @@ export default function Footer() {
               </Link>
             )}
           </div>
-          <div className="footer-center">
-            <p>@2026 {settings.site_name}. All rights reserved. The website is empowered by ❤️ Gemini AI ❤️</p>
+          <div className="footer-center" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+            <p>@2026 {settings.site_name}. All rights reserved.</p>
+            {settings.footer_show_powered_by === 'true' && (
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>The website is empowered by ❤️ Gemini AI ❤️</p>
+            )}
           </div>
           <div className="footer-right">
             {settings.footer_phone && (
