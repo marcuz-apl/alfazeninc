@@ -1,6 +1,6 @@
 {
   "name": "web4smb-lite",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "private": true,
   "scripts": {
     "dev": "next dev -p 2038 -H 0.0.0.0",
