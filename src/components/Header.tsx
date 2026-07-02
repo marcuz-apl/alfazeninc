@@ -15,6 +15,13 @@ export default function Header() {
     site_logo_url: '/images/brand/logo.png'
   });
   const pathname = usePathname();
+  const [productLinks, setProductLinks] = useState<{ name: string; href: string }[]>([
+    { name: 'ResoLogix', href: '/products#resologix' },
+    { name: 'Elogant', href: '/products#elogant' },
+    { name: 'Diabit', href: '/products#diabit' },
+    { name: 'SeisCult', href: '/products#seiscult' },
+    { name: 'FinaPick', href: '/products#finapick' },
+  ]);
 
   useEffect(() => {
     fetch('/api/settings/general')
@@ -23,16 +30,22 @@ export default function Header() {
         if (!data.error) setSettings(data);
       })
       .catch(console.error);
+
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.items) {
+          const links = data.items.map((item: any) => ({
+            name: item.name,
+            href: `/products#${item.slug}`
+          }));
+          setProductLinks(links);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const navLinks = ['Services', 'Gallery', 'Team', 'Article', 'Contact Us'];
-  const productLinks = [
-    { name: 'ResoLogix', href: '/products#resologix' },
-    { name: 'Elogant', href: '/products#elogant' },
-    { name: 'Diabit', href: '/products#diabit' },
-    { name: 'SeisCult', href: '/products#seiscult' },
-    { name: 'FinaPick', href: '/products#finapick' },
-  ];
 
   const getLinkHref = (link: string) => {
     const hash = `#${link.toLowerCase().replace(' ', '-')}`;

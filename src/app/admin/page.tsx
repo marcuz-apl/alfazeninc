@@ -9,6 +9,7 @@ import PagesTab from './components/PagesTab';
 import LayoutTab from './components/LayoutTab';
 import GeneralSettingsTab from './components/GeneralSettingsTab';
 import SystemTab from './components/SystemTab';
+import TemplatesTab from './components/TemplatesTab';
 
 interface Message {
   id: number;
@@ -47,7 +48,7 @@ export default function AdminPage() {
   const [inquiriesTab, setInquiriesTab] = useState<'messages' | 'subscribers'>('messages');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [landingPageTab, setLandingPageTab] = useState<'layout' | 'hero' | 'services' | 'gallery' | 'team' | 'articles'>('layout');
-  const [settingsTab, setSettingsTab] = useState<'general' | 'seo' | 'security'>('general');
+  const [settingsTab, setSettingsTab] = useState<'general' | 'seo' | 'security' | 'templates'>('general');
 
   const [adminBrand, setAdminBrand] = useState({
     site_name: 'Alfazen Inc.',
@@ -1715,14 +1716,14 @@ export default function AdminPage() {
 {activeTab === 'settings' && (
   <div>
     <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-      {(['general', 'seo', 'security'] as const).map((tab) => (
+      {(['general', 'seo', 'templates', 'security'] as const).map((tab) => (
         <button
           key={tab}
           onClick={() => setSettingsTab(tab)}
           className={`btn ${settingsTab === tab ? '' : 'btn-secondary'}`}
           style={{ textTransform: 'capitalize', padding: '6px 12px', fontSize: '14px' }}
         >
-          {tab === 'seo' ? 'Global SEO' : tab === 'security' ? 'Account & Security' : 'General'}
+          {tab === 'seo' ? 'Global SEO' : tab === 'security' ? 'Account & Security' : tab === 'templates' ? 'Website Templates' : 'General'}
         </button>
       ))}
     </div>
@@ -1733,6 +1734,10 @@ export default function AdminPage() {
 
     {settingsTab === 'seo' && (
       <SEOTab showNotification={showNotification} />
+    )}
+
+    {settingsTab === 'templates' && (
+      <TemplatesTab />
     )}
 
     {settingsTab === 'security' && (

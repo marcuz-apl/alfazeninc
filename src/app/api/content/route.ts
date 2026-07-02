@@ -43,6 +43,11 @@ export async function GET() {
       ];
     }
 
+    const quoteTitleRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'quote_title'").get() as any;
+    const quoteSubtitleRow = db.prepare("SELECT value FROM admin_settings WHERE key = 'quote_subtitle'").get() as any;
+    const quoteTitle = quoteTitleRow ? quoteTitleRow.value : 'Empowering Oil & Gas with AI';
+    const quoteSubtitle = quoteSubtitleRow ? quoteSubtitleRow.value : 'Discover our expertise now!';
+
     return NextResponse.json({
       hero,
       servicesSettings,
@@ -51,7 +56,11 @@ export async function GET() {
       gallery,
       team,
       articles: parsedArticles,
-      layout
+      layout,
+      quote: {
+        title: quoteTitle,
+        subtitle: quoteSubtitle
+      }
     });
   } catch (err) {
     console.error('Fetch landing page content error:', err);

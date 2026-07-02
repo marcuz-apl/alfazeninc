@@ -146,6 +146,10 @@ export default function HomeClient() {
   ]);
 
   const [articleImageHeight, setArticleImageHeight] = useState('600px');
+  const [quote, setQuote] = useState({
+    title: 'Empowering Oil & Gas with AI',
+    subtitle: 'Discover our expertise now!'
+  });
 
   // Load Content from API
   useEffect(() => {
@@ -160,6 +164,7 @@ export default function HomeClient() {
         if (data.team && data.team.length > 0) setTeam(data.team);
         if (data.articles && data.articles.length > 0) setArticles(data.articles);
         if (data.layout && data.layout.length > 0) setLayout(data.layout);
+        if (data.quote) setQuote(data.quote);
       })
       .catch((err) => console.error('Error loading landing page content:', err));
 
@@ -302,8 +307,8 @@ export default function HomeClient() {
                 transition={{ duration: 0.6 }}
                 className="quote-banner-content"
               >
-                <h2 className="quote-banner-title">Empowering Oil & Gas with AI</h2>
-                <p className="quote-banner-subtitle">Discover our expertise now!</p>
+                <h2 className="quote-banner-title">{quote.title}</h2>
+                <p className="quote-banner-subtitle">{quote.subtitle}</p>
               </motion.div>
             </div>
           </section>
@@ -432,7 +437,7 @@ export default function HomeClient() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                Connect with Alfazen Inc.
+                Connect with Us
               </motion.h2>
               
               <div className="contact-layout">

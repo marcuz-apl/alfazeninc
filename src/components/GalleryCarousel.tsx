@@ -19,12 +19,12 @@ export default function GalleryCarousel({
   const [isHovered, setIsHovered] = useState(false);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Reset index if image length changes and current index is out of bounds
+  // Reset index when image list shrinks (runs after render, so we also use safeIndex below)
   useEffect(() => {
-    if (currentIndex >= images.length) {
+    if (images.length > 0 && currentIndex >= images.length) {
       setCurrentIndex(0);
     }
-  }, [images, currentIndex]);
+  }, [images.length, currentIndex]);
 
   const slideVariants = {
     enter: (dir: number) => ({
@@ -87,8 +87,13 @@ export default function GalleryCarousel({
     >
       <div className="carousel-viewport">
         <AnimatePresence initial={false} custom={direction} mode="wait">
+          {(() => {
+            const safeIndex = images.length > 0 ? Math.min(currentIndex, images.length - 1) : 0;
+            const image = images[safeIndex];
+            if (!image) return null;
+            return (
           <motion.div
-            key={currentIndex}
+            key={safeIndex}
             custom={direction}
             variants={slideVariants}
             initial="enter"
@@ -98,14 +103,16 @@ export default function GalleryCarousel({
             className="carousel-slide"
           >
             <img 
-              src={images[currentIndex].src} 
-              alt={images[currentIndex].alt} 
+              src={image.src} 
+              alt={image.alt} 
               className="carousel-image"
             />
             <div className="carousel-caption">
-              <p>{images[currentIndex].alt}</p>
+              <p>{image.alt}</p>
             </div>
           </motion.div>
+            );
+          })()}
         </AnimatePresence>
 
         {/* Navigation Arrows */}
