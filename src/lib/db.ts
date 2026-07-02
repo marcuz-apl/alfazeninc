@@ -251,6 +251,9 @@ db.transaction(() => {
     db.exec("ALTER TABLE article_posts ADD COLUMN image_height TEXT");
   } catch (e) {}
   try {
+    db.exec("ALTER TABLE article_posts ADD COLUMN image_position TEXT DEFAULT 'left'");
+  } catch (e) {}
+  try {
     db.prepare("UPDATE products_items SET logo_url = '/images/products/resologix-logo.png' WHERE slug = 'resologix' AND (logo_url IS NULL OR logo_url = '/images/products/resologix-logo-cropped.png' OR logo_url = '')").run();
     db.prepare("UPDATE products_items SET logo_url = '/images/products/elogant-logo.png' WHERE slug = 'elogant' AND (logo_url IS NULL OR logo_url = '')").run();
     db.prepare("UPDATE products_items SET logo_url = '/images/products/diabit-logo.png' WHERE slug = 'diabit' AND (logo_url IS NULL OR logo_url = '')").run();

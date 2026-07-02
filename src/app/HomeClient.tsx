@@ -371,24 +371,15 @@ export default function HomeClient() {
               {articles.map((post, index) => (
                 <div 
                   key={post.id || index}
-                  className="article-grid"
-                  style={{
-                    display: 'grid',
-                    gap: '32px',
-                    alignItems: 'center'
-                  }}
+                  className={`article-grid${post.image_position === 'right' ? ' image-right' : ''}`}
                 >
                   {/* Image Column */}
                   <motion.div 
                     className="article-image-container"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: post.image_position === 'right' ? 30 : -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    style={{ 
-                      order: 2,
-                      height: post.image_height || articleImageHeight
-                    }}
                   >
                     <img 
                       src={post.image_url} 
@@ -399,12 +390,11 @@ export default function HomeClient() {
                   
                   {/* Content Column */}
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: post.image_position === 'right' ? -30 : 30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                     className="article-content"
-                    style={{ order: 1 }}
                   >
                     <Link href={`/articles/${post.id}`} style={{ textDecoration: 'none' }}>
                       <h2 className="article-title">{post.title}</h2>
@@ -426,6 +416,7 @@ export default function HomeClient() {
             </div>
           </section>
         );
+
       case 'contact-us':
         return (
           <section id="contact-us" className="section" style={{ backgroundColor: 'var(--background)' }} key="contact-us">

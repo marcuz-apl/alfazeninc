@@ -1487,7 +1487,8 @@ export default function AdminPage() {
                               display_order: content.articles.length + 1,
                               meta_title: '',
                               meta_description: '',
-                              image_height: ''
+                              image_height: '',
+                              image_position: 'left'
                             });
                           }}
                           className="btn"
@@ -1591,7 +1592,7 @@ export default function AdminPage() {
                           </div>
                         </div>
 
-                        <div style={{ marginTop: '16px' }}>
+                        <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                           <div className="form-group">
                             <label className="label">Image Height (Optional override)</label>
                             <input 
@@ -1601,6 +1602,36 @@ export default function AdminPage() {
                               onChange={(e) => setEditingCard({ ...editingCard, image_height: e.target.value })}
                               placeholder="e.g. 1080px, 400px (leaves blank for general settings)"
                             />
+                          </div>
+                          <div className="form-group">
+                            <label className="label">Image Position</label>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
+                              {(['left', 'right'] as const).map((pos) => (
+                                <button
+                                  key={pos}
+                                  type="button"
+                                  onClick={() => setEditingCard({ ...editingCard, image_position: pos })}
+                                  style={{
+                                    flex: 1,
+                                    padding: '10px',
+                                    border: `2px solid ${ (editingCard.image_position || 'left') === pos ? 'var(--primary)' : 'var(--surface-border)' }`,
+                                    borderRadius: '8px',
+                                    backgroundColor: (editingCard.image_position || 'left') === pos ? 'var(--primary)' : 'var(--surface)',
+                                    color: (editingCard.image_position || 'left') === pos ? '#fff' : 'var(--text-muted)',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    fontSize: '14px',
+                                    transition: 'all 0.2s'
+                                  }}
+                                >
+                                  {pos === 'left' ? '◀ Image Left' : 'Image Right ▶'}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
